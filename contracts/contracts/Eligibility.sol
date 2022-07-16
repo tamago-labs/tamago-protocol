@@ -111,4 +111,8 @@ contract Eligibility
         return MerkleProof.verify(_proof, gateway.claimRoot(), leaf);
     }
 
+    function _setGateway(address _gatewayAddress) internal {
+         gateway = IGateway(_gatewayAddress);
+    }
+
 }

@@ -97,6 +97,8 @@ contract Marketplace is
 
         permissions[msg.sender] = Role.ADMIN;
 
+        devAddress = msg.sender;
+
         // set fees for ERC-20
         // swapFee = 100; // 1%
     }
@@ -327,6 +329,16 @@ contract Marketplace is
     // update swap fees
     function setSwapFee(uint256 _fee) external onlyAdmin {
         swapFee = _fee;
+    }
+
+    // update gateway
+    function setGateway(address _gatewayAddress) external onlyAdmin {
+        _setGateway(_gatewayAddress);
+    }
+
+    // update dev address
+    function setDevAddress(address _devAddress) external onlyAdmin {
+        devAddress = _devAddress;
     }
 
     // set max. orders can be created and swapped per time
