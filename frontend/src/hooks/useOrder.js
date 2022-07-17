@@ -6,15 +6,14 @@ import { ethers } from "ethers";
 import Moralis from "moralis"
 import { MerkleTree } from "merkletreejs";
 import keccak256 from "keccak256";
-import { NFT_MARKETPLACE, MOCK_NFT, NFT_STORAGE_TOKEN } from "../constants";
+import { NFT_MARKETPLACE, MOCK_NFT, NFT_STORAGE_TOKEN, ERC20_TOKENS } from "../constants";
 import MarketplaceABI from "../abi/marketplace.json";
 import NFTABI from "../abi/nft.json";
 import ERC20ABI from "../abi/erc20.json";
 import { NFTStorage } from 'nft.storage'
 import useMoralisAPI from "./useMoralisAPI"
 import { getProviders } from "../helper";
-// import useProof from "./useProof";
-import { MOCKS } from "../components/createOrder"
+// import useProof from "./useProof"; 
 
 
 window.Buffer = window.Buffer || require("buffer").Buffer;
@@ -368,6 +367,22 @@ const useOrder = () => {
       });
 
       if (data && data.metadata) {
+
+        if (
+          data.metadata &&
+          data.metadata.image &&
+          data.metadata.image.indexOf("ipfs://") !== -1
+        ) {
+          data.metadata.image = data.metadata.image.replaceAll(
+            "ipfs://",
+            "https://ipfs.infura.io/ipfs/"
+          );
+        }
+
+        if (data.metadata && !data.metadata.image && data.metadata["image_url"]) {
+          data.metadata.image = data.metadata["image_url"];
+        }
+
         return data;
       }
     } catch (e) { }
@@ -381,8 +396,7 @@ const useOrder = () => {
     chainId
   }) => {
 
-    //  {/* {ethers.utils.formatUnits(fromData.baseAssetTokenIdOrAmount, fromData.decimals)}{` `}{fromData.symbol} */}
-    const token = (MOCKS.find(
+    const token = (ERC20_TOKENS.find(
       (item) => item.chainId === chainId && item.contractAddress.toLowerCase() === assetAddress.toLowerCase() && item.tokenType === 0
     ))
 

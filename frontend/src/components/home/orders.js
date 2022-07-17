@@ -31,6 +31,7 @@ const StyledContainer = styled(Container)`
 const NetworkPanel = styled.div`
     text-align: center;
     padding: 1rem;
+    padding-bottom: 0rem;
 `
 
 const Description = styled.p`
@@ -104,7 +105,7 @@ const Orders = () => {
 
     useEffect(() => {
         setTimeout(() => {
-            setChain(97)
+            setChain(1)
         }, 500)
     }, [])
 
@@ -121,22 +122,33 @@ const Orders = () => {
         <StyledContainer>
 
             <NetworkPanel>
-                {/* <OptionsLarge
-                    options={supportedChainIds.map(item => [item, resolveNetworkName(item)])}
-                    setter={setChain}
-                    getter={chain}
-                /> */}
-                
-                <ButtonGroup>
-                    {
-                        supportedChainIds.map((item) => {
-                            return (
-                                <ToggleButton onClick={() => setChain(item)} active={chain === item}>
-                                    {resolveNetworkName(item)}
-                                </ToggleButton>
-                            )
-                        })
-                    }
+                <ButtonGroup style={{ marginBottom: "15px" }}>
+                    <ToggleButton onClick={() => setChain(1)} active={chain === 1}>
+                        Ethereum
+                    </ToggleButton>
+                    <ToggleButton onClick={() => setChain(137)} active={chain === 137}>
+                        Polygon
+                    </ToggleButton>
+                    <ToggleButton onClick={() => setChain(56)} active={chain === 56}>
+                        BNB
+                    </ToggleButton>
+                    <ToggleButton onClick={() => setChain(43114)} active={chain === 43114}>
+                        Avalanche
+                    </ToggleButton> 
+                </ButtonGroup>
+                <ButtonGroup> 
+                    <ToggleButton onClick={() => setChain(42)} active={chain === 42}>
+                        Kovan
+                    </ToggleButton>
+                    <ToggleButton onClick={() => setChain(80001)} active={chain === 80001}>
+                        Mumbai
+                    </ToggleButton>
+                    <ToggleButton onClick={() => setChain(97)} active={chain === 97}>
+                        BNB Testnet
+                    </ToggleButton>
+                    <ToggleButton onClick={() => setChain(43113)} active={chain === 43113}>
+                        Fuji Testnet
+                    </ToggleButton>
                 </ButtonGroup>
                 <Description>
                     20x is a decentralized universal marketplace powered by Filecoin allows anyone trade tokens for any tokens

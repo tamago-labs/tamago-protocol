@@ -185,7 +185,7 @@ const Faucet = () => {
                         BNB Testnet
                     </ToggleButton>
                     <ToggleButton onClick={() => setChain(43113)} active={chain === 43113}>
-                        AVAX Fuji
+                        Fuji Testnet
                     </ToggleButton>
                 </ButtonGroup>
                 <ButtonGroup>

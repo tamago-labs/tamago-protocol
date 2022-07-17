@@ -23,6 +23,22 @@ export const NFT_MARKETPLACE = [
   {
     chainId: 43113,
     contractAddress: "0x9682DaBf26831523B21759A50b0a45832f82DBa3",
+  },
+  {
+    chainId: 1,
+    contractAddress: "0x260fC7251fAe677B6254773d347121862336fb9f",
+  },
+  {
+    chainId: 56,
+    contractAddress: "0x5Cd0BC81Fc176ea4f1e571D5279AFDee35dda618",
+  },
+  {
+    chainId: 43114,
+    contractAddress: "0x42209A0A2a3D80Ad48B7D25fC6a61ad355901484",
+  },
+  {
+    chainId: 137,
+    contractAddress: "0xcf30E553633737258A0392D07A5062Ba2C79Ca9F",
   }
 ];
 
@@ -288,4 +304,68 @@ export const ERC20_TOKENS = [
     symbol: "USDT",
     decimals: 6,
   },
+  {
+    chainId: 42,
+    contractAddress: "0x8F6e0835CCA21892d5296D58EB0C8206B623BF2B",
+    tokenType: 0,
+    symbol: "USDC",
+    decimals: 6
+},
+{
+    chainId: 42,
+    contractAddress: "0x8afc69A0C245f4d84Ba160F19df1F76a44991d65",
+    tokenType: 0,
+    symbol: "USDT",
+    decimals: 6
+},
+{
+    chainId: 42,
+    contractAddress: "0xC926A3F31Ad3db8f27Bbfe4aD42a19A0BCaD8059",
+    tokenType: 0,
+    symbol: "DAI",
+    decimals: 18
+},
+{
+    chainId: 80001,
+    contractAddress: "0x553588e084604a2677e10E46ea0a8A8e9D859146",
+    tokenType: 0,
+    symbol: "USDC",
+    decimals: 6
+},
+{
+    chainId: 80001,
+    contractAddress: "0x42209A0A2a3D80Ad48B7D25fC6a61ad355901484",
+    tokenType: 0,
+    symbol: "DAI",
+    decimals: 18
+},
+{
+    chainId: 97,
+    contractAddress: "0x65e38111d8e2561aDC0E2EA1eeA856E6a43dC892",
+    tokenType: 0,
+    symbol: "USDC",
+    decimals: 6
+},
+{
+    chainId: 97,
+    contractAddress: "0x553588e084604a2677e10E46ea0a8A8e9D859146",
+    tokenType: 0,
+    symbol: "DAI",
+    decimals: 18
+},
+{
+    chainId: 43113,
+    contractAddress: "0x65e38111d8e2561aDC0E2EA1eeA856E6a43dC892",
+    tokenType: 0,
+    symbol: "USDC",
+    decimals: 6
+},
+{
+    chainId: 43113,
+    contractAddress: "0x553588e084604a2677e10E46ea0a8A8e9D859146",
+    tokenType: 0,
+    symbol: "DAI",
+    decimals: 18
+}
+
 ];
