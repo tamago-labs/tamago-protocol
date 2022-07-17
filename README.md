@@ -1,5 +1,9 @@
 # 20x.market
 
+![20x-logo-2](https://user-images.githubusercontent.com/18402217/179379473-8f4272c8-2dfb-4730-bed6-d1e2c3638949.png)
+
+20x.market is a decentralized universal marketplace allows trade tokens for any tokens powered by Filecoin networks.
+
 
 ## Deployment
 
