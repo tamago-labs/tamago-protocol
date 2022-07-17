@@ -42,6 +42,8 @@ A payload is basically the core element of the project defining the way to store
 One of the example payload:
 https://bafkreiayczhsojnlcm7ra6iok6wpwlxznwtfsfzhbrxftog4fxdgq4rkvq.ipfs.nftstorage.link/
 
+After the entry is uploaded successfully on IPFS, the merkle tree will be contructed using the Keccak hash from 4 pieces of information `CID`, `chainId`, `assetAddress`, `assetTokenIdOrAmount`.
+
 ## Deployment
 
 ### Kovan Testnet (Chain Id : 42)
