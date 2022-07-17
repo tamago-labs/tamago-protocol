@@ -8,8 +8,8 @@
 
 - Ethereum Soldiity, Hardhat - Smart Contract
 - React, Node.js, Merkletree.js, ethers.js, web3-react libraries - Frontend and handy scripts
-- Filecoin/IPFS via NFT.storage services - Persist of JSON entries
-- Moralis  - Catch events 
+- Filecoin/IPFS via NFT.storage - Persist of JSON entries
+- Moralis  - Catch and store events emitted from the contract 
 
 ### Motivation
 
