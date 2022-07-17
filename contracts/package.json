@@ -3,11 +3,11 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
     "@openzeppelin/contracts-ethereum-package": "^3.0.0",
+    "dotenv": "^16.0.1",
     "keccak256": "^1.0.6",
     "merkletreejs": "^0.2.31"
   },
   "devDependencies": {
-    "pure-ipfs-only-hash": "^4.0.2",
     "@ethersproject/abi": "^5.6.4",
     "@ethersproject/providers": "^5.6.8",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.1",
@@ -21,6 +21,7 @@
     "ethers": "^5.6.9",
     "hardhat": "^2.10.0",
     "hardhat-gas-reporter": "^1.0.8",
+    "pure-ipfs-only-hash": "^4.0.2",
     "solidity-coverage": "^0.7.21",
     "typechain": "^8.1.0"
   }

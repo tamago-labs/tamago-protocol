@@ -288,15 +288,10 @@ const NFTCard = ({
                         {(ownedItems !== undefined && item.chainId === chainId) ? <>{` ${ownedItems}`}</> : <Skeleton height="16px" />}
                     </L2Text>
                 </div> */}
-
-
-
-
             </PairAssetCard>
         </>
     )
 }
-
 
 const OrderDetails = () => {
     const { account, library, chainId } = useWeb3React()
@@ -420,42 +415,13 @@ const OrderDetails = () => {
                     <div style={{ display: "flex", flexDirection: "row", marginTop: "1rem" }}>
                         <Info name={"Status"} value={status ? "Sold" : "New" } />
                         <Info name={"Chain"} value={resolveNetworkName(order.chainId)} />
-                        {/* <Info
-                            name={"Added By"}
-                            value={shortAddress(order.ownerAddress)}
-                        /> */}
                         <Info
-                            name={"Created"}
+                            name={"Added"}
                             value={new Date(
                                 Number(order.timestamp) * 1000
                             ).toLocaleString()}
                         />
-                        {/* <Info
-                            name={"Status"}
-                            value={
-                                status === 0
-                                    ? null
-                                    : status === 2
-                                        ? "Sold"
-                                        : status === 3
-                                            ? "Canceled"
-                                            : "New"
-                            }
-                            color={status === 2 ? "red" : "white"}
-                        />
-                        <Info
-                            name={"Added By"}
-                            value={sellerName}
-                            link={order.ownerAddress}
-                        />
-                        <Info
-                            name={"Created"}
-                            value={new Date(
-                                Number(order.timestamp) * 1000
-                            ).toLocaleString()}
-                        /> */}
                     </div>
-
 
                     <hr />
 
@@ -464,7 +430,6 @@ const OrderDetails = () => {
                             Connect to correct network to trade
                         </AlertWarning>
                     )}
-
 
                     <div
                         style={{

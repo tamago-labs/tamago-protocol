@@ -14,8 +14,7 @@ export const Button2 = styled.button`
     border: 0px;
     font-size: 14px;
     color: white;
-    border-radius: 5px;
-    box-shadow: 5px 5px black;
+    border-radius: 5px; 
 `
 
 export const ToggleButton = styled(Button)`
