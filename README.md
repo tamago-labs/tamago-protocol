@@ -30,10 +30,10 @@ A payload is basically the core element of the project defining the way to store
     "baseAssetTokenType": Asset Type - 0 - ERC-20, 1 - ERC-721, 2- ERC-1155,
     "barterList": [
         {
-            "assetAddress": "0x07cb7ec3aa0dcb6bfcfcf7f9b00017320223e32a",
-            "assetTokenIdOrAmount": "14",
-            "tokenType": 1,
-            "chainId": 80001
+            "assetAddress": Contract address of the NFT or ERC-20 to be traded,
+            "assetTokenIdOrAmount": NFT's Token ID or ERC-20 amount to be traded,
+            "tokenType": Asset Type to be traded,
+            "chainId": Chain ID of the asset to be traded
         }
     ]
 }
