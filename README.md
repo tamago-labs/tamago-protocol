@@ -46,6 +46,30 @@ After the entry is uploaded successfully on IPFS, the merkle tree will be contru
 
 ## Deployment
 
+### Ethereum (Chain id : 1)
+
+Contract Name | Contract Address 
+--- | --- 
+Marketplace | 0x260fC7251fAe677B6254773d347121862336fb9f
+
+### BNB Chain (Chain id : 56) 
+
+Contract Name | Contract Address 
+--- | --- 
+Marketplace | 0x5Cd0BC81Fc176ea4f1e571D5279AFDee35dda618
+
+### Avalanche (Chain id : 43114) 
+
+Contract Name | Contract Address 
+--- | --- 
+Marketplace | 0x42209A0A2a3D80Ad48B7D25fC6a61ad355901484
+
+### Polygon (Chain id : 137) 
+
+Contract Name | Contract Address 
+--- | --- 
+Marketplace | 0xcf30E553633737258A0392D07A5062Ba2C79Ca9F
+
 ### Kovan Testnet (Chain Id : 42)
 
 Contract Name | Contract Address 
