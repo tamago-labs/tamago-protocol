@@ -84,12 +84,12 @@ const From = ({ nfts, fromData, setFromData, step, setStep }) => {
                                     onClick={() => {
                                         setFromData({
                                             chainId,
-                                            baseAssetAddress : nft.token_address,
-                                            baseAssetTokenIdOrAmount : nft.token_id,
-                                            baseAssetTokenType : nft.contract_type === "ERC1155" ? 2 : 1,
+                                            baseAssetAddress: nft.token_address,
+                                            baseAssetTokenIdOrAmount: nft.token_id,
+                                            baseAssetTokenType: nft.contract_type === "ERC1155" ? 2 : 1,
                                             token_hash: nft.token_hash,
-                                            image : nft.metadata && nft.metadata.image,
-                                            name : (nft.name) || (nft.metadata.name)
+                                            image: nft.metadata && nft.metadata.image,
+                                            name: (nft.name) || (nft.metadata.name)
                                         })
                                     }}
                                 >
@@ -97,6 +97,33 @@ const From = ({ nfts, fromData, setFromData, step, setStep }) => {
                                 </SelectableCard>
                             ))
                         )
+                        }
+                        {!nfts &&
+                            (
+                                <>
+                                    <Skeleton
+                                        height="275px"
+                                        width="260px"
+                                        style={{ borderRadius: "6px", margin: "6px" }}
+                                    />
+                                    <Skeleton
+                                        height="275px"
+                                        width="260px"
+                                        style={{ borderRadius: "6px", margin: "6px" }}
+                                    />
+                                    <Skeleton
+                                        height="275px"
+                                        width="260px"
+                                        style={{ borderRadius: "6px", margin: "6px" }}
+                                    />
+                                    <Skeleton
+                                        height="275px"
+                                        width="260px"
+                                        style={{ borderRadius: "6px", margin: "6px" }}
+                                    />
+                                </>
+                            )
+
                         }
                     </div>
                 </TabPane>
@@ -111,14 +138,14 @@ const From = ({ nfts, fromData, setFromData, step, setStep }) => {
                                     selected={fromData && fromData.token_hash === token_hash}
                                     onClick={() => {
                                         setFromData({
-                                            chainId : token.chainId,
-                                            baseAssetAddress : token.contractAddress,
-                                            baseAssetTokenIdOrAmount : `${ethers.utils.parseUnits(`${tokenAmount[index]}`, token.decimals)}`,
-                                            baseAssetTokenType : 0,
+                                            chainId: token.chainId,
+                                            baseAssetAddress: token.contractAddress,
+                                            baseAssetTokenIdOrAmount: `${ethers.utils.parseUnits(`${tokenAmount[index]}`, token.decimals)}`,
+                                            baseAssetTokenType: 0,
                                             token_hash,
-                                            image : "../images/coin.png",
-                                            decimals : token.decimals,
-                                            symbol : token.symbol
+                                            image: "../images/coin.png",
+                                            decimals: token.decimals,
+                                            symbol: token.symbol
                                         })
                                     }}
                                 >
@@ -131,16 +158,7 @@ const From = ({ nfts, fromData, setFromData, step, setStep }) => {
                                                 value={tokenAmount[index]}
                                                 onChange={(e) => {
                                                     const amount = Number(e.target.value)
-                                                    setTokenAmount( tokenAmount.map((v, i) => i === index ? amount : v ) )
-
-                                                    setFromData({
-                                                        chainId : token.chainId,
-                                                        baseAssetAddress : token.contractAddress,
-                                                        baseAssetTokenIdOrAmount : `${ethers.utils.parseUnits(`${amount}`, token.decimals)}`,
-                                                        baseAssetTokenType : 0,
-                                                        token_hash
-                                                    })
-
+                                                    setTokenAmount(tokenAmount.map((v, i) => i === index ? amount : v))
                                                 }}
                                             />
                                             <InputGroupText>

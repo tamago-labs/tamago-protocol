@@ -92,6 +92,12 @@ const Header = () => {
                     <a target="_blank" href="https://github.com/pisuthd/marketplace-20x">
                         {` `}GitHub
                     </a>
+                    {` `}
+                    <a target="_blank" href=" https://twitter.com/20xMarket">
+                        {` `}Twitter
+                    </a>
+                    
+                   
                 </div>
 
                 <Buttons>

@@ -7,6 +7,7 @@ import CreateOrder from "./components/createOrder"
 import Header from "./components/header"
 import Home from "./components/home"
 import Footer from "./components/footer"
+import OrderDetails from "./components/orderDetails"
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -17,7 +18,7 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
   body {
-    font-family: 'VT323', monospace;
+    font-family: monospace;
     color: white;
     /* Full height */
     min-height: 100vh; 
@@ -40,6 +41,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/faucet" element={<Faucet />} />
         <Route path="/create" element={<CreateOrder />} />
+        <Route path="/order/:id" element={<OrderDetails />} />
       </Routes>
 
       <Footer/>

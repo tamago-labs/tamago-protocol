@@ -173,14 +173,14 @@ const CreateOrder = () => {
 
     const fetchSearchNFTs = useCallback(async ({
         searchText,
-        searchChain
+        chainId
     }) => {
 
         if (!searchText || searchText.length <= 2) return
         setSearchLoading(true)
         const options = {
             q: searchText,
-            chain: `0x${searchChain.toString(16)}`,
+            chain: `0x${chainId.toString(16)}`,
             filter: searchFilter.join(','),
         }
         const { result } = await Web3Api.token.searchNFTs(options)
@@ -205,7 +205,7 @@ const CreateOrder = () => {
 
         setSearchNFT(filteredData)
         setSearchLoading(false)
-    }, [account, chainId, searchChain, searchText, searchFilter])
+    }, [account, chainId, searchText, searchFilter])
 
     useEffect(() => {
         if (!account && !chainId) return
@@ -217,13 +217,10 @@ const CreateOrder = () => {
         })
     }, [account, chainId])
 
-
-
-
     return (
         <Container>
             <Description>
-                20x allows list any type of tokens and accept NFT or tokens as payment ex. NFT#A from Polygon can be sold for 100 USDC on Avalaunch or NFT#B on BNB Chain
+                To list the asset simply by define the list of pair assets, upload it to Filecoin and register the hash on the contract then wait for someone come to swap
             </Description>
 
             {!account && (
@@ -267,8 +264,6 @@ const CreateOrder = () => {
                     setStep={setStep}
                     setSearchText={setSearchText}
                     searchText={searchText}
-                    setSearchChain={setSearchChain}
-                    searchChain={searchChain}
                     fetchSearchNFTs={fetchSearchNFTs}
                     toTokens={toTokens}
                     setToTokens={setToTokens}
