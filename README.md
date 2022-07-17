@@ -30,3 +30,7 @@ Marketplace | 0x9682DaBf26831523B21759A50b0a45832f82DBa3
 Contract Name | Contract Address 
 --- | --- 
 Marketplace | 0x6fdB032668F1F856fbC2e9F5Df348938aFBFBE17
+
+## License
+
+[MIT](./blob/master/LICENSE)
