@@ -3,6 +3,7 @@ import { useMoralisWeb3Api } from "react-moralis";
 import { useWeb3React } from "@web3-react/core";
 import axios from "axios";
 import { ethers } from "ethers";
+import Moralis from "moralis"
 import { MerkleTree } from "merkletreejs";
 import keccak256 from "keccak256";
 import { NFT_MARKETPLACE, MOCK_NFT, NFT_STORAGE_TOKEN } from "../constants";
@@ -10,8 +11,10 @@ import MarketplaceABI from "../abi/marketplace.json";
 import NFTABI from "../abi/nft.json";
 import ERC20ABI from "../abi/erc20.json";
 import { NFTStorage } from 'nft.storage'
-// import { getProviders } from "../helper";
+import useMoralisAPI from "./useMoralisAPI"
+import { getProviders } from "../helper";
 // import useProof from "./useProof";
+import { MOCKS } from "../components/createOrder"
 
 
 window.Buffer = window.Buffer || require("buffer").Buffer;
@@ -23,6 +26,7 @@ const useOrder = () => {
   const Web3Api = useMoralisWeb3Api();
 
   const context = useWeb3React();
+  const { generateMoralisParams, resolveOrderCreatedTable, resolveSwappedTable } = useMoralisAPI()
 
   // const { generateRelayMessages, generateValidatorMessages } = useProof();
 
@@ -146,8 +150,46 @@ const useOrder = () => {
         values.baseAssetTokenType,
         hexRoot
       );
-      await tx.await()
-      
+      await tx.wait()
+
+    },
+    [account, chainId, library]
+  );
+
+  const approveToken = useCallback(
+    async (values) => {
+      if (!account) {
+        throw new Error("Wallet not connected");
+      }
+
+      if (
+        NFT_MARKETPLACE.filter((item) => item.chainId === values.chainId)
+          .length === 0
+      ) {
+        throw new Error("Marketplace contract is not available on given chain");
+      }
+
+      if (chainId !== values.chainId) {
+        throw new Error("Invalid chain");
+      }
+
+      const { contractAddress } = NFT_MARKETPLACE.find(
+        (item) => item.chainId === values.chainId
+      );
+
+      const tokenContract = new ethers.Contract(
+        values.baseAssetAddress,
+        ERC20ABI,
+        library.getSigner()
+      );
+
+      if (
+        (Number(await tokenContract.allowance(account, contractAddress)) === 0)
+      ) {
+        const tx = await tokenContract.approve(contractAddress, ethers.constants.MaxUint256);
+        await tx.wait();
+      }
+
     },
     [account, chainId, library]
   );
@@ -183,10 +225,10 @@ const useOrder = () => {
         (await nftContract.isApprovedForAll(account, contractAddress)) === false
       ) {
         const tx = await nftContract.setApprovalForAll(contractAddress, true);
-        return await tx.wait();
+        await tx.wait();
       }
 
-      return
+
     },
     [account, chainId, library]
   );
@@ -216,12 +258,270 @@ const useOrder = () => {
     [account]
   );
 
+  const getAllOrders = useCallback(async (chainId) => {
+
+    await Moralis.start(generateMoralisParams(chainId));
+
+    const OrderCreated = Moralis.Object.extend(`${resolveOrderCreatedTable(chainId)}`);
+    const query = new Moralis.Query(OrderCreated);
+
+    query.limit(1000)
+
+    const results = await query.find();
+
+    let output = []
+
+    for (let object of results) {
+      const cid = object.get("cid")
+      const timestamp = object.get("block_timestamp")
+      const assetAddress = object.get("assetAddress")
+      const owner = object.get("owner")
+      const tokenId = object.get("tokenId")
+      const tokenType = object.get("tokenType")
+
+      output.push({
+        cid,
+        timestamp,
+        assetAddress,
+        owner,
+        tokenId,
+        tokenType: Number(tokenType),
+        chainId
+      })
+
+    }
+
+    // check swap events
+    const Swapped = Moralis.Object.extend(`${resolveSwappedTable(chainId)}`);
+    const querySwap = new Moralis.Query(Swapped);
+
+    querySwap.limit(1000)
+
+    const swapItems = await querySwap.find();
+
+    let swapCompleted = []
+
+    for (let object of swapItems) {
+      const cid = object.get("cid")
+      swapCompleted.push(cid)
+    }
+
+    output = output.filter(item => swapCompleted.indexOf(item.cid) === -1)
+
+    return output.sort(function (a, b) {
+      return b.timestamp - a.timestamp;
+    });
+
+  }, [])
+
+  const resolveMetadataFromCacheServer = ({
+    assetAddress,
+    tokenId,
+    chainId,
+  }) => {
+    try {
+      const mockCollections = MOCK_NFT[chainId];
+      const mock = mockCollections.list.find(
+        (item) => item.address.toLowerCase() === assetAddress.toLowerCase()
+      );
+
+      if (!mock.isERC721) {
+        return {
+          metadata: {
+            name: mock.name,
+            image: mock.image,
+            description: mock.description || "",
+          },
+        };
+      }
+    } catch (e) { }
+
+    return new Promise((resolve) => {
+      axios
+        .get(
+          `${API_BASE}/nft/metadata/${assetAddress}/${tokenId}/0x${chainId.toString(
+            16
+          )}`
+        )
+        .then(({ data }) => {
+          resolve(data);
+        });
+
+      setTimeout(() => {
+        resolve();
+      }, 3000);
+    });
+  };
+
+  const resolveMetadata = async ({ assetAddress, tokenId, chainId }) => {
+    const options = {
+      address: `${assetAddress}`,
+      token_id: `${tokenId}`,
+      chain: `0x${chainId.toString(16)}`,
+    };
+
+    try {
+      const data = await resolveMetadataFromCacheServer({
+        assetAddress,
+        tokenId,
+        chainId,
+      });
+
+      if (data && data.metadata) {
+        return data;
+      }
+    } catch (e) { }
+    const tokenIdMetadata = await Web3Api.token.getTokenIdMetadata(options);
+    return await getMetadata(tokenIdMetadata);
+  };
+
+  const resolveTokenValue = ({
+    assetAddress,
+    tokenId,
+    chainId
+  }) => {
+
+    //  {/* {ethers.utils.formatUnits(fromData.baseAssetTokenIdOrAmount, fromData.decimals)}{` `}{fromData.symbol} */}
+    const token = (MOCKS.find(
+      (item) => item.chainId === chainId && item.contractAddress.toLowerCase() === assetAddress.toLowerCase() && item.tokenType === 0
+    ))
+
+    return `${ethers.utils.formatUnits(tokenId, token.decimals)} ${token.symbol} `
+  }
+
+  const swap = useCallback(
+    async (orderId, order, tokenIndex) => {
+      if (!account) {
+        throw new Error("Wallet not connected");
+      }
+
+      if (
+        NFT_MARKETPLACE.filter((item) => item.chainId === order.chainId)
+          .length === 0
+      ) {
+        throw new Error("Marketplace contract is not available on given chain");
+      }
+
+      const token = order.barterList[tokenIndex];
+
+      if (chainId !== order.chainId) {
+        throw new Error("Invalid chain");
+      }
+
+      const { contractAddress } = NFT_MARKETPLACE.find(
+        (item) => item.chainId === order.chainId
+      );
+
+      const contract = new ethers.Contract(
+        contractAddress,
+        MarketplaceABI,
+        library.getSigner()
+      );
+
+      if (token.tokenType === 0) {
+        // erc20
+        const tokenContract = new ethers.Contract(
+          token.assetAddress,
+          ERC20ABI,
+          library.getSigner()
+        );
+
+        if (
+          (
+            await tokenContract.allowance(account, contractAddress)
+          ).toString() === "0"
+        ) {
+          const tx = await tokenContract.approve(
+            contractAddress,
+            ethers.constants.MaxUint256
+          );
+          await tx.wait();
+        }
+      } else {
+        // erc721 / 1155
+        const nftContract = new ethers.Contract(
+          token.assetAddress,
+          NFTABI,
+          library.getSigner()
+        );
+
+        if (
+          (await nftContract.isApprovedForAll(account, contractAddress)) ===
+          false
+        ) {
+          const tx = await nftContract.setApprovalForAll(contractAddress, true);
+          await tx.wait();
+        }
+      }
+
+      const leaves = order.barterList
+        .filter((item) => item.chainId === chainId)
+        .map((item) =>
+          ethers.utils.keccak256(
+            ethers.utils.solidityPack(
+              ["string", "uint256", "address", "uint256"],
+              [orderId, item.chainId, item.assetAddress, item.assetTokenIdOrAmount]
+            )
+          )
+        );
+      const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
+
+      const proof = tree.getHexProof(
+        ethers.utils.keccak256(
+          ethers.utils.solidityPack(
+            ["string", "uint256", "address", "uint256"],
+            [orderId, token.chainId, token.assetAddress, token.assetTokenIdOrAmount]
+          )
+        )
+      );
+
+      return await contract.swap(
+        orderId,
+        token.assetAddress,
+        token.assetTokenIdOrAmount,
+        token.tokenType,
+        proof
+      );
+    },
+    [account, chainId, library]
+  );
+
+  const resolveStatus = async ({ orderId, chainId }) => {
+    const providers = getProviders();
+
+    const { provider } = providers.find((item) => item.chainId === chainId);
+
+    const { contractAddress } = NFT_MARKETPLACE.find(
+      (item) => item.chainId === chainId
+    );
+
+    const marketplaceContract = new ethers.Contract(
+      contractAddress,
+      MarketplaceABI,
+      provider
+    );
+
+    const result = await marketplaceContract.orders(orderId);
+    return result["ended"];
+  };
+
+  const getOrder = useCallback(async (orderId) => {
+    const { data } = await axios.get(`https://${orderId}.ipfs.nftstorage.link/`)
+    return data
+  }, [])
 
   return {
     getMetadata,
     createOrder,
     approveNft,
-    register
+    register,
+    approveToken,
+    getAllOrders,
+    getOrder,
+    resolveMetadata,
+    resolveTokenValue,
+    swap,
+    resolveStatus
   };
 };
 

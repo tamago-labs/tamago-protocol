@@ -132,7 +132,7 @@ const Confirm = ({
 
     const [loading, setLoading] = useState(false)
 
-    const { createOrder, approveNft, register } = useOrder()
+    const { createOrder, approveNft, approveToken,  register } = useOrder()
 
     const { chainId, account } = useWeb3React()
     const [orderId, setOrderId] = useState()
@@ -195,7 +195,12 @@ const Confirm = ({
         setLoading(true)
 
         try {
-            await approveNft(values)
+
+            if (values.baseAssetTokenType === 0) {
+                await approveToken(values)
+            } else {
+                 await approveNft(values)
+            }
 
             setProcess(PROCESS.DEPOSIT)
         } catch (e) {
@@ -203,7 +208,7 @@ const Confirm = ({
         }
 
         setLoading(false)
-    }, [values, approveNft])
+    }, [values, approveNft, approveToken])
 
     const onRegister = useCallback(async () => {
         setLoading(true)
@@ -237,8 +242,6 @@ const Confirm = ({
                 setProcess(PROCESS.FILL)
         }
     }, [process, onGenerateId, onApprove])
-
-    console.log("process : ", process)
 
     return (
         <Wrapper>
@@ -316,7 +319,7 @@ const Confirm = ({
                     <tbody>
                         <tr>
                             <td>1</td>
-                            <td>Keep your entry on Filecoin & IPFS (CID:{orderId && shortAddress(orderId, 3, -3)})</td>
+                            <td>Upload your entry to Filecoin (CID:{orderId && shortAddress(orderId, 3, -3)})</td>
                             <td>{process > 0 ? <Check /> : <X />}</td>
                         </tr>
                         <tr>
@@ -326,7 +329,7 @@ const Confirm = ({
                         </tr>
                         <tr>
                             <td>3</td>
-                            <td>Register your order on the contract</td>
+                            <td>Register the hash on the contract</td>
                             <td>{process > 2 ? <Check /> : <X />}</td>
                         </tr>
                     </tbody>

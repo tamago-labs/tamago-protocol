@@ -93,8 +93,6 @@ const To = ({
     setSearchText,
     searchText,
     searchLoading,
-    setSearchChain,
-    searchChain,
     fetchSearchNFTs,
     toTokens,
     setToTokens,
@@ -109,10 +107,10 @@ const To = ({
 
 
     useEffect(() => {
-        if (searchChain && isNft) {
+        if (chainId && isNft) {
             setCurrentToken()
         }
-    }, [searchChain, isNft])
+    }, [chainId, isNft])
 
     const onSearchTextChange = (e) => {
         setSearchText(e.target.value)
@@ -141,10 +139,10 @@ const To = ({
 
     const tokens = useMemo(() => {
         const mocks = (MOCKS.filter(
-            (item) => item.chainId === searchChain && item.tokenType === 0
+            (item) => item.chainId === chainId && item.tokenType === 0
         ).concat(
             ERC20_TOKENS.filter(
-                (item) => item.chainId === searchChain && item.tokenType === 0
+                (item) => item.chainId === chainId && item.tokenType === 0
             )))
         let intialAmount = []
         for (let t of mocks) {
@@ -153,35 +151,7 @@ const To = ({
         setTokenAmount(intialAmount)
         return mocks
 
-    }, [searchChain])
-
-    const onAdd = useCallback(() => {
-        if (tokenAmount && currentToken && searchChain) {
-            const token = tokens.find(
-                (item) => item.symbol === currentToken && item.chainId === searchChain
-            )
-            setToTokens([
-                ...toTokens,
-                {
-                    assetAddress: token.contractAddress,
-                    assetTokenIdOrAmount: `${ethers.utils
-                        .parseUnits(`${tokenAmount}`, token.decimals)
-                        .toString()}`,
-                    tokenType: 0,
-                    chainId: token.chainId,
-                    decimals: token.decimals,
-                    symbol: token.symbol,
-                },
-            ])
-        }
-    }, [tokens, currentToken, tokenAmount, toTokens, searchChain])
-
-    const onTokenRemove = useCallback(
-        (index) => {
-            setToTokens(toTokens.filter((item, i) => index !== i))
-        },
-        [toTokens]
-    )
+    }, [chainId])
 
     const [activeTab, setActiveTab] = useState("1")
 
@@ -209,15 +179,14 @@ const To = ({
                     </NavLink>
                 </NavItem>
             </Nav>
-
             <TabContent activeTab={activeTab}>
                 <TabPane tabId="1">
                     <div>
                         <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-                            <ChainSelector
+                            {/* <ChainSelector
                                 setter={setSearchChain}
                                 getter={searchChain}
-                            />
+                            /> */}
                             <div style={{ marginLeft: "auto", marginRight: "auto", marginBottom: "1rem" }}>
                                 <SearchInput
                                     value={searchText}
@@ -227,7 +196,7 @@ const To = ({
                                     onClick={() =>
                                         fetchSearchNFTs({
                                             searchText,
-                                            searchChain,
+                                            chainId,
                                         })
                                     }
                                 >
@@ -242,11 +211,11 @@ const To = ({
                                 <>
                                     <SelectableCard
                                         image={nft.metadata.image}
-                                        chainId={searchChain}
+                                        chainId={chainId}
                                         selected={toData.find(
                                             (data) => data.token_hash === nft.token_hash
                                         )}
-                                        onClick={() => onClickCard({ ...nft, chainId: searchChain })}
+                                        onClick={() => onClickCard({ ...nft, chainId })}
                                     >
                                         <div className="name">{shorterName(nft.metadata.name)}
                                             {` `}#{shorterName(nft.token_id)}</div>
@@ -282,12 +251,7 @@ const To = ({
                 </TabPane>
                 <TabPane tabId="2">
                     <div>
-                        <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-                            <ChainSelector
-                                setter={setSearchChain}
-                                getter={searchChain}
-                            />
-                        </div>
+                        
 
                         {tokens.map((token, index) => {
                             const token_hash = `${token.chainId}${token.contractAddress}`
@@ -331,22 +295,6 @@ const To = ({
                                                 onChange={(e) => {
                                                     const amount = Number(e.target.value)
                                                     setTokenAmount(tokenAmount.map((v, i) => i === index ? amount : v))
-
-                                                    setToTokens([
-                                                        ...toTokens,
-                                                        {
-                                                            assetAddress: token.contractAddress,
-                                                            assetTokenIdOrAmount: `${ethers.utils
-                                                                .parseUnits(`${amount}`, token.decimals)
-                                                                .toString()}`,
-                                                            tokenType: 0,
-                                                            chainId: token.chainId,
-                                                            decimals: token.decimals,
-                                                            symbol: token.symbol,
-                                                            token_hash
-                                                        },
-                                                    ])
-
                                                 }}
                                             />
                                             <InputGroupText>

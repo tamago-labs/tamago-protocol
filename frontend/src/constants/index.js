@@ -1,8 +1,6 @@
-export const MORALIS_URL = "https://cybgqjtb97zb.usemoralis.com:2053/server";
-export const MORALIS_ID = "c5pJEepQAhugEYhT4xmn5FUvWRij5Rvbpn7yZGJ9";
-export const NFT_STORAGE_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDc3ODMyODZkMUMyODUyMUM4NjJDMzQ2YkM5NjNlNzU3ZDhmMDJERTMiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY1Nzk0NjkyNTI1OCwibmFtZSI6IjIweCJ9.h1QakHVtJawYyCAGtAHaVSCbyoaTIvQ_WnXlF42pm9I"
-
-export const COIN_GECKO_API_BASE = "https://api.coingecko.com/api/v3";
+export const MORALIS_URL = process.env.REACT_APP_MORALIS_MAINNET_SERVER_URL;
+export const MORALIS_ID = process.env.REACT_APP_MORALIS_MAINNET_APP_ID;
+export const NFT_STORAGE_TOKEN = process.env.REACT_APP_NFT_STORAGE_TOKEN
 
 export const SUPPORT_CHAINS = [42, 97, 80001, 43113, 137, 56, 43114, 1];
 

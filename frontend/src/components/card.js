@@ -8,7 +8,7 @@ import { resolveNetworkName } from "../helper";
 const AssetCardContainer = styled.div`
   background-color: white;
   width: 260px;
-  min-height: 350px;
+  min-height: 300px;
   border-radius: 6px;
   padding: 12px;
   border: 1px solid transparent;
@@ -147,9 +147,52 @@ export const AssetCard = ({
   </BaseAssetCardContainer>
 );
 
+const PairAssetCardContainer = styled(BaseAssetCardContainer)`
+  width: 170px;
+  min-height: 275px;
+  
+`
+
+const PairImage = styled(Image)`
+  height: 160px;
+`
+
+
+export const PairAssetCard = ({
+  children,
+  image,
+  chainId,
+  balance
+}) => (
+  <PairAssetCardContainer>
+
+    <PreviewContainer style={{ height: "160px" }}>
+      {image ? (
+        <PairImage src={image} />
+      ) : (
+        <Skeleton height="160px" />
+      )}
+      {chainId && (
+        <ChainInfo>
+          <div>{resolveNetworkName(chainId)}</div>
+        </ChainInfo>
+      )}
+      {balance && (
+        <ChainInfo>
+          <div>{balance}</div>
+        </ChainInfo>
+      )}
+
+    </PreviewContainer>
+
+    {children}
+  </PairAssetCardContainer>
+);
+
+
+
 const SelectableCardContainer = styled(BaseAssetCardContainer)`
      min-height: 225px;
-     cursor: pointer;
        opacity: ${(props) => (props.selected ? "0.64" : "100")};
    border: ${(props) =>
     props.selected ? "1px solid pink" : "1px solid transparent"};
@@ -163,9 +206,9 @@ export const SelectableCard = ({
   chainId,
   onClick
 }) => (
-  <SelectableCardContainer onClick={onClick} selected={selected}>
+  <SelectableCardContainer selected={selected}>
 
-    <PreviewContainer>
+    <PreviewContainer style={{ cursor: "pointer" }} onClick={onClick} >
       {image ? (
         <Image src={image} />
       ) : (
@@ -178,7 +221,7 @@ export const SelectableCard = ({
       )}
 
     </PreviewContainer>
-      
+
     {children}
   </SelectableCardContainer>
 );
@@ -212,3 +255,5 @@ export const CommonCard = ({
     {children}
   </CommonCardContainer>
 )
+
+
