@@ -46,6 +46,12 @@ After the entry is uploaded successfully on IPFS, the merkle tree will be contru
 
 ## Deployment
 
+### Cronos (Chain id : 25)
+
+Contract Name | Contract Address 
+--- | --- 
+Marketplace | 0xf2260B00250c772CB64606dBb88d9544F709308C
+
 ### Ethereum (Chain id : 1)
 
 Contract Name | Contract Address 
