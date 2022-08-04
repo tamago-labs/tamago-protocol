@@ -62,19 +62,19 @@ Marketplace | 0x260fC7251fAe677B6254773d347121862336fb9f
 
 Contract Name | Contract Address 
 --- | --- 
-Marketplace | 0x5Cd0BC81Fc176ea4f1e571D5279AFDee35dda618
+Marketplace | 0xC8def0BE43D35a247e03EEd09C9afBd5FC866769
 
 ### Avalanche (Chain id : 43114) 
 
 Contract Name | Contract Address 
 --- | --- 
-Marketplace | 0x42209A0A2a3D80Ad48B7D25fC6a61ad355901484
+Marketplace | 0x7D17d5903eDEdB8597c9343c94FeD74E93589e47
 
 ### Polygon (Chain id : 137) 
 
 Contract Name | Contract Address 
 --- | --- 
-Marketplace | 0xcf30E553633737258A0392D07A5062Ba2C79Ca9F
+Marketplace | 0xd0B14b314B6B983889b68E6EA307BF210156A050
 
 ### Kovan Testnet (Chain Id : 42)
 
