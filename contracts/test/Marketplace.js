@@ -3,7 +3,7 @@ const { ethers } = require("hardhat")
 const { MerkleTree } = require('merkletreejs')
 const keccak256 = require("keccak256")
 const Hash = require('pure-ipfs-only-hash')
-const { toUsdc, fromUsdc } = require("./Helpers")
+const { toUsdc, fromUsdc , toEther, fromEther, getBalance } = require("./Helpers")
 
 // contracts
 let marketplace
@@ -159,6 +159,39 @@ describe("Marketplace contract", () => {
         // validate the result
         expect(await erc721.ownerOf(1)).to.equal(bob.address)
         expect(await mockUsdc.balanceOf(alice.address)).to.equal(toUsdc(200))
+
+    })
+
+    it("create an order and fulfill /w ETH", async () => {
+
+        // mint ERC-721 for Alice
+        await erc721.mint(alice.address, 1)
+
+        // make approvals
+        await erc721.connect(alice).setApprovalForAll(marketplace.address, true)
+ 
+        const cid = await Hash.of("Order#1")
+
+        const leaves = [ethers.utils.keccak256(ethers.utils.solidityPack(["string", "uint256", "address", "uint256"], [ cid ,1 , "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", toEther(0.1) ]))]
+
+        const tree = new MerkleTree(leaves, keccak256, { sortPairs: true })
+
+        const root = tree.getHexRoot()
+
+        // create an order and deposit ERC721 NFT
+        await marketplace.connect(alice).create(cid, erc721.address, 1, 1, root)
+
+        const proof = tree.getHexProof(ethers.utils.keccak256(ethers.utils.solidityPack(["string", "uint256","address", "uint256"], [cid , 1 , "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", toEther(0.1)])))
+
+        // swap 0.1 ETH for 1 NFT
+        await marketplace.connect(bob).swapWithEth(cid, proof , {
+            value : toEther(0.1)
+        })
+
+     
+        // validate the result
+        expect(await erc721.ownerOf(1)).to.equal(bob.address)
+        // expect(await mockUsdc.balanceOf(alice.address)).to.equal(toUsdc(200))
 
     })
 
