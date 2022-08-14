@@ -80,25 +80,29 @@ Marketplace | 0xd0B14b314B6B983889b68E6EA307BF210156A050
 
 Contract Name | Contract Address 
 --- | --- 
-Marketplace | 0x49F74a10855288D2f390E784c349dCD3f44499AC
+Marketplace | 0x93DAcb3cBCB1FE63760B47d94602Dd7F958c434C
+Gateway | 0xc3162221D51BbF9CF427a13b3d7c1f0AD0E711a9
 
 ### Mumbai Testnet (Chain Id : 80001)
 
 Contract Name | Contract Address 
 --- | --- 
-Marketplace | 0x9286e7a1f66b6f99dB85A345117a330ED5ED79F1
+Marketplace | 0x334aB2599bC5ABEbAcA54C3E8aF68ee94Ad586fD
+Gateway | 0xD84cE28B4D502237c518328230c39E8A371121a5
 
 ### Avalanche Fuji Testnet (Chain Id : 43113)
 
 Contract Name | Contract Address 
 --- | --- 
-Marketplace | 0x9682DaBf26831523B21759A50b0a45832f82DBa3
+Marketplace | 0x7D17d5903eDEdB8597c9343c94FeD74E93589e47
+Gateway | 0xbF06fEC9271B2440E8f3Be87392e2415025Cd4A9
 
 ### BNB Smart Chain Testnet (Chain Id : 97)
 
 Contract Name | Contract Address 
 --- | --- 
-Marketplace | 0x6fdB032668F1F856fbC2e9F5Df348938aFBFBE17
+Marketplace | 0xbF06fEC9271B2440E8f3Be87392e2415025Cd4A9
+Gateway | 0x5F7392Ec616F829Ab54092e7F167F518835Ac740
 
 ## License
 
