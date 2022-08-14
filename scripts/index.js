@@ -4,7 +4,7 @@ require("dotenv").config();
 const retry = require("async-retry");
 const logger = require('loglevel');
 const Moralis = require("moralis/node")
-const { resolveChainName, generateMoralisParams, orderCreatedABI, swapABI } = require("./utils")
+const { resolveChainName, generateMoralisParams, orderCreatedABI, swapABI, cancelABI } = require("./utils")
 
 logger.enableAll()
 
@@ -49,11 +49,27 @@ async function Subscribe(callback) {
 
         }
 
+        // Subcribe swap event
+
         options.topic = "Swapped(string, address)"
         options.abi = swapABI
         options.tableName = `${resolveChainName(chainId)}Swapped`,
         
         logger.debug("Subcribe Swapped events...")
+
+        try {
+             await Moralis.Cloud.run("watchContractEvent", options, { useMasterKey: true });
+        } catch (e) {
+
+        }
+
+        // Subcribe cancel event
+
+        options.topic = "OrderCanceled(string, address)"
+        options.abi = cancelABI
+        options.tableName = `${resolveChainName(chainId)}Canceled`,
+        
+        logger.debug("Subcribe Canceled events...")
 
         try {
              await Moralis.Cloud.run("watchContractEvent", options, { useMasterKey: true });
