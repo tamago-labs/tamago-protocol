@@ -14,6 +14,8 @@ exports.resolveChainName = (chainId) => {
             return "polygon"
         case 43114:
             return "avax"
+        case 25:
+            return "cronos"
         case 1:
             return "eth"
     }
@@ -27,7 +29,7 @@ exports.generateMoralisParams = (chainId) => {
             masterKey: process.env.MORALIS_TESTNET_MASTER_KEY
         }
     }
-    if ([56, 137, 43114, 1].indexOf(chainId) !== -1) {
+    if ([56, 137, 43114, 1, 25].indexOf(chainId) !== -1) {
         return {
             serverUrl: process.env.MORALIS_MAINNET_SERVER_URL,
             appId: process.env.MORALIS_MAINNET_APP_ID,
@@ -35,6 +37,26 @@ exports.generateMoralisParams = (chainId) => {
         }
     }
     throw new Error("Chain isn't supported")
+}
+
+exports.cancelABI = {
+    "anonymous": false,
+    "inputs": [
+        {
+            "indexed": false,
+            "internalType": "string",
+            "name": "cid",
+            "type": "string"
+        },
+        {
+            "indexed": true,
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+        }
+    ],
+    "name": "OrderCanceled",
+    "type": "event"
 }
 
 exports.swapABI = {
