@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link"
 import { Briefcase } from "react-feather";
 import styled from "styled-components";
@@ -7,9 +7,10 @@ import { Puff } from "react-loading-icons";
 import { useWeb3React } from "@web3-react/core";
 import { Flex, Box } from 'reflexbox'
 import useOrder from "../../hooks/useOrder";
+import { Tabs, TabList, Tab, TabPanel } from 'react-tabs';
 // import { Row, Col, Accordion, AccordionBody, AccordionHeader, AccordionItem, List, ListGroup, ListGroupItem } from "reactstrap";
 import { resolveBlockexplorerLink, resolveNetworkName, shortAddress, shorterName } from "../../helper";
-import { PairAssetCard } from "../card"; 
+import { PairAssetCard } from "../card";
 import { useERC1155 } from "../../hooks/useERC1155";
 import { useERC20 } from "../../hooks/useERC20";
 import { useERC721 } from "../../hooks/useERC721";
@@ -92,6 +93,25 @@ const Attribute = styled.div`
   }
 
 `
+
+
+const Attributes = styled.div`
+  margin-top: 20px;
+  margin-bottom: 3rem;
+`
+
+const AttributeItem = styled.div`
+  border: 1px solid #ddd;
+  margin-top: -1px; 
+  padding: 12px; 
+  display: flex;
+  flex-direction: row;
+  div {
+    flex: 1;
+  }
+`
+
+
 
 export const Info = styled(({ className, name, value, link }) => {
   return (
@@ -193,7 +213,6 @@ const OrderDetails = ({
     }
     return [];
   }, [order]);
- 
 
   if (!order) {
     return <Container><div style={{ textAlign: "center", padding: "3rem", display: "flex", flexDirection: "row" }}>
@@ -283,174 +302,85 @@ const OrderDetails = ({
 
           <hr />
 
+          <Tabs style={{ marginTop: "1rem" }}>
+            <TabList>
+              <Tab>
+                Information
+              </Tab>
+              <Tab>
+                Attributes ({data && data.metadata.attributes && data.metadata.attributes.length || 0})
+              </Tab>
+            </TabList>
+            <TabPanel>
+
+              <Attributes>
+                <AttributeItem>
+                  <div>
+                    Contract Addresss
+                  </div>
+                  <div>
+                    <a target="_blank" href={resolveBlockexplorerLink(order.chainId, order.baseAssetAddress)}>
+                      {shortAddress(order.baseAssetAddress)}
+                    </a>
+                  </div>
+                </AttributeItem>
+                <AttributeItem>
+                  <div>
+                    Token ID
+                  </div>
+                  <div>
+                    #{shorterName(order.baseAssetTokenIdOrAmount)}
+                  </div>
+                </AttributeItem>
+                <AttributeItem>
+                  <div>
+                    Token Standard
+                  </div>
+                  <div>
+                    {order.baseAssetTokenType === 0 ? "ERC-20" : order.baseAssetTokenType === 1 ? "ERC-721" : "ERC-1155"}
+                  </div>
+                </AttributeItem>
+                <AttributeItem>
+                  <div>
+                    Blockchain
+                  </div>
+                  <div>
+                    {resolveNetworkName(order.chainId)}
+                  </div>
+                </AttributeItem>
+                <AttributeItem>
+                  <div>
+                    Added
+                  </div>
+                  <div>
+                    {new Date(Number(order.timestamp) * 1000).toLocaleDateString()}
+                  </div>
+                </AttributeItem> 
+              </Attributes>
+      
+ 
+            </TabPanel>
+            <TabPanel>
+              <Flex flexWrap='wrap'>
+                {data && data.metadata && data.metadata.attributes && data.metadata.attributes.map((item, index) => {
+                  return (
+                    <Box
+                      width={[1 / 3]}
+                      p={1}>
+                      <div style={{ border: "1px solid white", height: "80px", borderRadius: "8px", padding: "15px", fontSize: "14px" }}>
+                        <h5 style={{ fontSize: "18px", padding: "0px", margin: "0px", marginBottom: "5px" }}>{item.trait_type || "Key"}</h5>
+                        <b>{item.value || "Value"}</b>
+                      </div>
+                    </Box>
+                  )
+                })}
+              </Flex>
+
+            </TabPanel>
+          </Tabs>
+
         </Box>
       </Flex>
-
-      {/* <Container>
-      <Row>
-        <Col sm="5">
-          <ImageContainer>
-            {data && (
-              <Image
-                src={data && data.metadata && data.metadata.image}
-                alt="image"
-              />
-            )}
-            {order.baseAssetTokenType === 0 && (
-              <Image src={"../images/coin.png"} alt="image" />
-            )}
-            {order.baseAssetTokenType !== 0 && !data && (
-              <Skeleton height="500px" />
-            )}
-          </ImageContainer>
-        </Col>
-        <Col style={{ paddingBottom: "4rem" }} sm="7">
-          {order.baseAssetTokenType !== 0 && (
-            <>
-              <Title>
-                {data && data.metadata && data.metadata.name
-                  ? data.metadata.name
-                  : order.title}
-              </Title>
-              <Description>
-                {data && data.metadata && data.metadata.description}
-              </Description>
-            </>
-          )}
-
-          {order.baseAssetTokenType === 0 && (
-            <>
-              <Title>
-                {resolveTokenValue({
-                  assetAddress: order.baseAssetAddress,
-                  tokenId: order.baseAssetTokenIdOrAmount,
-                  chainId: order.chainId,
-                })}
-                {` `}For Sell
-              </Title>
-            </>
-          )}
-
-          <div
-            style={{ display: "flex", flexDirection: "row", marginTop: "1rem" }}
-          >
-            <Info link={`${order.chainId}/${order.baseAssetAddress}`} name={"Collection"} value={collectionInfo && collectionInfo.title ? collectionInfo.title : shortAddress(order.baseAssetAddress)} />
-            <Info name={"Status"} value={status ? "Sold" : "New"} />
-
-          </div>
-
-          <hr />
-
-          {chainId !== order.chainId && (
-            <AlertWarning>Connect to correct network to trade</AlertWarning>
-          )}
-
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              marginTop: "1rem",
-            }}
-          >
-            {items.map((item, index) => {
-              return (
-                <NFTCard
-                  key={index}
-                  orderId={id}
-                  order={order}
-                  item={item}
-                  account={account}
-                  library={library}
-                  baseMetadata={data}
-                  index={index}
-                  increaseTick={increaseTick}
-                  tick={tick}
-                />
-              );
-            })}
-          </div>
-
-          <hr />
-
-          <Attribute>
-            <Accordion open={open} toggle={toggle}>
-              <AccordionItem>
-                <AccordionHeader targetId="1">
-                  Attributes ({data && data.metadata.attributes && data.metadata.attributes.length || 0})
-                </AccordionHeader>
-                <AccordionBody accordionId="1">
-
-                  <Row>
-                    {data && data.metadata && data.metadata.attributes && data.metadata.attributes.map((item, index) => {
-                      return (
-                        <Col sm="3" key={index} style={{ padding: 10 }}>
-                          <div style={{ border: "1px solid white", height: "80px", borderRadius: "8px", padding: "10px", fontSize: "12px" }}>
-                            <h5 style={{ fontSize: "16px" }}>{item.trait_type || "Key"}</h5>
-                            <b>{item.value || "Value"}</b>
-                          </div>
-                        </Col>
-                      )
-                    })}
-                  </Row>
-
-                </AccordionBody>
-              </AccordionItem>
-              <AccordionItem>
-                <AccordionHeader targetId="2">
-                  Information
-                </AccordionHeader>
-                <AccordionBody accordionId="2">
-                  <ListGroup>
-                    <ListGroupItem>
-                      <div>
-                        Contract Addresss
-                      </div>
-                      <div>
-                        <a target="_blank" href={resolveBlockexplorerLink(order.chainId, order.baseAssetAddress)}>
-                          {shortAddress(order.baseAssetAddress)}
-                        </a>
-                      </div>
-                    </ListGroupItem>
-                    <ListGroupItem>
-                      <div>
-                        Token ID
-                      </div>
-                      <div>
-                        #{shorterName(order.baseAssetTokenIdOrAmount)}
-                      </div>
-                    </ListGroupItem>
-                    <ListGroupItem>
-                      <div>
-                        Token Standard
-                      </div>
-                      <div>
-                        {order.baseAssetTokenType === 0 ? "ERC-20" : order.baseAssetTokenType === 1 ? "ERC-721" : "ERC-1155"}
-                      </div>
-                    </ListGroupItem>
-                    <ListGroupItem>
-                      <div>
-                        Blockchain
-                      </div>
-                      <div>
-                        {resolveNetworkName(order.chainId)}
-                      </div>
-                    </ListGroupItem>
-                    <ListGroupItem>
-                      <div>
-                        Added
-                      </div>
-                      <div>
-                        {new Date(Number(order.timestamp) * 1000).toLocaleDateString()}
-                      </div>
-                    </ListGroupItem>
-                  </ListGroup>
-                </AccordionBody>
-              </AccordionItem>
-            </Accordion>
-          </Attribute>
-        </Col>
-      </Row>
-    </Container > */}
     </Container>
 
   );
