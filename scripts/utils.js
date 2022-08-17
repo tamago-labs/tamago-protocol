@@ -39,6 +39,52 @@ exports.generateMoralisParams = (chainId) => {
     throw new Error("Chain isn't supported")
 }
 
+exports.partialSwappedABI = {
+    "anonymous": false,
+    "inputs": [
+        {
+            "indexed": false,
+            "internalType": "string",
+            "name": "cid",
+            "type": "string"
+        },
+        {
+            "indexed": true,
+            "internalType": "address",
+            "name": "fromAddress",
+            "type": "address"
+        }
+    ],
+    "name": "PartialSwapped",
+    "type": "event"
+}
+
+exports.claimedABI = {
+    "anonymous": false,
+    "inputs": [
+        {
+            "indexed": false,
+            "internalType": "string",
+            "name": "cid",
+            "type": "string"
+        },
+        {
+            "indexed": true,
+            "internalType": "address",
+            "name": "fromAddress",
+            "type": "address"
+        },
+        {
+            "indexed": false,
+            "internalType": "bool",
+            "name": "isOriginChain",
+            "type": "bool"
+        }
+    ],
+    "name": "Claimed",
+    "type": "event"
+}
+
 exports.cancelABI = {
     "anonymous": false,
     "inputs": [
