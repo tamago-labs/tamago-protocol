@@ -1,8 +1,6 @@
-# 20x
+# Tamago Protocol
 
-![20x-logo-2](https://user-images.githubusercontent.com/18402217/179379473-8f4272c8-2dfb-4730-bed6-d1e2c3638949.png)
-
-20x (https://20x.market) is a decentralized universal marketplace powered by Filecoin networks. It helps anyone create off-chain entries contain assets to be prices and terms and link them to the EVM-based blockchain via the Merkle tree root's hash support of ERC-20, ERC-721 and ERC-1155, after the order is set, potential buyers can check the details retrieved from IPFS and further generate a proof to swap the asset in a decentralized manner. 
+Tamago Protocol is a multi-chain native universal asset marketplace powered by Filecoin/IPFS networks. It helps anyone create off-chain entries contain assets to be prices and terms and link them to the EVM-based blockchain via the Merkle tree root's hash support of ERC-20, ERC-721 and ERC-1155, after the order is set, potential buyers can check the details retrieved from IPFS and further generate a proof to swap the asset in a decentralized manner. 
 
 ### Tech Stack
 
