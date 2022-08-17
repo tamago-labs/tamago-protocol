@@ -23,7 +23,7 @@ const A = styled.a`
 const Footer = () => {
     return (
         <Wrapper>
-            Made  with ❤️ by{` `}<A href="https://tamago.finance" target="_blank">Tamago Protocol</A>
+            Made  with ❤️ by{` `}<A  rel="noreferrer" href="https://tamago.finance" target="_blank">Tamago Protocol</A>
         </Wrapper> 
     )
 }

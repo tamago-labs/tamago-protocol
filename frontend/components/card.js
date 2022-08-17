@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Skeleton from "react-loading-skeleton";
 import Link from "next/link"
 import { resolveNetworkName, shorterName } from "../helper";
-import { Check } from "react-feather";
+import { Check, TrendingUp } from "react-feather";
 import useOrder from "../hooks/useOrder"
 
 const AssetCardContainer = styled.div`
@@ -67,6 +67,46 @@ const ChainInfo = styled.div`
     color: white;
   }
 `;
+
+const ChainInfoMini = styled.div`
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  z-index: 10;
+  width: 100%;
+  display: flex;
+  background: black;
+  height: 10px; 
+  div {
+    overflow: hidden;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 10px;
+    color: white;
+  }
+`;
+
+
+const TokenValueMini = styled.div`
+  position: absolute;
+  toop: 0px;
+  left: 0px;
+  z-index: 10;
+  width: 100%;
+  display: flex;
+  background: blue;
+  height: 30px; 
+  div {
+    overflow: hidden;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 11px;
+    color: white;
+  }
+`;
+
 
 const NewRibbon = styled.div`
   position: absolute;
@@ -173,14 +213,15 @@ export const CollectionCard = ({ children, image, chain, address }) => (
 const PairAssetCardContainer = styled(BaseAssetCardContainer)`
   width: 170px;
   min-height: 275px;
+  
 `;
 
 const PairImage = styled(Image)`
   height: 160px;
 `;
 
-export const PairAssetCard = ({ children, image, chainId, balance }) => (
-  <PairAssetCardContainer>
+export const PairAssetCard = ({ children, image, chainId, balance, invert = false }) => (
+  <PairAssetCardContainer invert={invert}>
     <PreviewContainer style={{ height: "160px" }}>
       {image ? <PairImage src={image} /> : <Skeleton height="160px" />}
       {chainId && (
@@ -197,6 +238,26 @@ export const PairAssetCard = ({ children, image, chainId, balance }) => (
 
     {children}
   </PairAssetCardContainer>
+);
+
+export const PairAssetCardMini = ({ children, image, chainId, tokenValue }) => (
+  <div style={{ height: 40, width: 40 }}>
+    <div style={{ height: "40px", position: "relative", overflow: "hidden" }}>
+      {tokenValue && (
+        <TokenValueMini>
+          <div>{tokenValue}</div>
+        </TokenValueMini>
+      )}
+      {image ? <img style={{ width: 40 }} src={image} /> : <Skeleton height="40px" />}
+      {chainId && (
+        <ChainInfoMini>
+          <div>{resolveNetworkName(chainId)}</div>
+        </ChainInfoMini>
+      )}
+    </div>
+
+    {children}
+  </div>
 );
 
 const SelectableCardContainer = styled(BaseAssetCardContainer)`

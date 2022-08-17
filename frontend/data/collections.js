@@ -60,6 +60,12 @@ const COLLECTIONS = [
         description: "Mock CloneX for testing purpose"
     },
     {
+        chainId : 80001  ,
+        assetAddress : "0xe5209a4f622c6ed2c158dcccddb69b05f9d0e4e0",
+        title : "Mock Moonbird",
+        description: "Mock Moonbird NFT for testing purpose"
+    },
+    {
         chainId : 97  ,
         assetAddress : "0xe5209a4f622c6ed2c158dcccddb69b05f9d0e4e0",
         title : "Mock Coolcat",
@@ -82,6 +88,12 @@ const COLLECTIONS = [
         assetAddress : "0xb07a6a775c94f8b87f920984534533110814d242",
         title : "100 Yen NFT (Testnet)",
         description: "The first collection on the launchpad made by Tamago team that anyone can mint NFT with $1 (~100 JPY) accept in stablecoins, the NFT represents tools, items that commonly seen in 100 yen shops aim to be used further on any Metaverse platforms with total supply of 10,000. When the event is finished, $10,000 raised will be split equally and given to 3 holders via NFTLuckbox."
+    },
+    {
+        chainId : 43113  ,
+        assetAddress : "0x487f33e1f048159061d059f72a2c165dec5bca5c",
+        title : "Mock Moonbird",
+        description: "Mock Moonbird NFT for testing purpose"
     },
     {
         chainId : 43113  ,

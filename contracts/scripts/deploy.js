@@ -8,15 +8,19 @@ const hre = require("hardhat");
 
 async function main() {
   
-  const chainId = 137; // change here
+  const chainId = 42; // change here
 
   const Marketplace = await hre.ethers.getContractFactory("Marketplace")
+  const Gateway = await hre.ethers.getContractFactory("Gateway")
 
   const marketplace = await Marketplace.deploy(chainId);
+  const gateway = await Gateway.deploy(chainId);
 
   await marketplace.deployed();
+  await gateway.deployed()
 
   console.log("marketplace deployed to:", marketplace.address);
+  console.log("gateway deployed to:", gateway.address);
 
   await hre.run("verify:verify", {
     address: marketplace.address,
@@ -24,6 +28,14 @@ async function main() {
       chainId
     ],
   });
+
+  await hre.run("verify:verify", {
+    address: gateway.address,
+    constructorArguments: [
+      chainId
+    ],
+  });
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere

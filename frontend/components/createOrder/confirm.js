@@ -149,6 +149,7 @@ const Confirm = ({
   toTokens,
   setToTokens,
   fromTokens,
+  isMultiChain
 }) => {
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState([]);
@@ -256,9 +257,9 @@ const Confirm = ({
         approveItemSet.map(async (item) => {
           const value = values.find(v => v.baseAssetAddress === item)
           if (value.baseAssetTokenType === 0) {
-            await approveToken(value);
+            await approveToken(value, isMultiChain);
           } else {
-            await approveNft(value);
+            await approveNft(value, isMultiChain);
           }
         })
       );
@@ -268,12 +269,12 @@ const Confirm = ({
     }
 
     setLoading(false);
-  }, [values, approveNft, approveToken]);
+  }, [values, approveNft, approveToken, isMultiChain]);
 
   const onRegister = useCallback(async () => {
     setLoading(true);
     try {
-      await register(orderId, values);
+      await register(orderId, values, isMultiChain);
 
       setProcess(PROCESS.CONFIRM);
     } catch (e) {
@@ -281,7 +282,7 @@ const Confirm = ({
     }
 
     setLoading(false);
-  }, [values, orderId, register]);
+  }, [values, orderId, register, isMultiChain]);
 
   const proceed = useCallback(() => {
     switch (process) {

@@ -1,7 +1,7 @@
 import { useMemo, useEffect, useState, useCallback } from "react";
 import { ethers } from "ethers";
 import ERC721ABI from "../abi/ERC721.json";
-import { NFT_MARKETPLACE } from "../constants";
+import { NFT_MARKETPLACE, NFT_GATEWAY } from "../constants";
 import { useWeb3React } from "@web3-react/core"; 
 
 
@@ -86,23 +86,24 @@ export const useERC721 = (address, account, library) => {
     }
   }, [erc721Contract, account]);
 
-  const isApproved = useCallback(async () => {
+  const isApproved = useCallback(async (isGateway = false) => {
     try {
-      const { contractAddress } = NFT_MARKETPLACE.find(item => item.chainId === chainId)
+      const ITEMS = isGateway ? NFT_GATEWAY : NFT_MARKETPLACE
+      const { contractAddress } =  ITEMS.find(item => item.chainId === chainId)
       return (await erc721Contract.isApprovedForAll(account, contractAddress))
     } catch (e) {
       return false;
     }
   }, [erc721Contract, account, chainId]);
 
-  const approve = useCallback(async () => {
+  const approve = useCallback(async (isGateway) => {
     try {
 
-      if (await isApproved()) {
+      if (await isApproved(isGateway)) {
         return
     }
-
-      const { contractAddress } = NFT_MARKETPLACE.find(item => item.chainId === chainId)
+      const ITEMS = isGateway ? NFT_GATEWAY : NFT_MARKETPLACE
+      const { contractAddress } = ITEMS.find(item => item.chainId === chainId)
       const tx = await erc721Contract.setApprovalForAll(contractAddress, true)
       await tx.wait()
     } catch (e) {

@@ -6,36 +6,19 @@ import Skeleton from "react-loading-skeleton";
 import { Puff } from "react-loading-icons";
 import { useWeb3React } from "@web3-react/core";
 import { Flex, Box } from 'reflexbox'
-import useOrder from "../../hooks/useOrder";
+import useOrder from "../../../hooks/useOrder";
 import { Tabs, TabList, Tab, TabPanel } from 'react-tabs';
-// import { Row, Col, Accordion, AccordionBody, AccordionHeader, AccordionItem, List, ListGroup, ListGroupItem } from "reactstrap";
-import { resolveBlockexplorerLink, resolveNetworkName, shortAddress, shorterName } from "../../helper";
-import { PairAssetCard } from "../card";
-import { useERC1155 } from "../../hooks/useERC1155";
-import { useERC20 } from "../../hooks/useERC20";
-import { useERC721 } from "../../hooks/useERC721";
-import { Alert } from "../../components/alert";
-import { Button2 } from "../../components/button";
+import { resolveBlockexplorerLink, resolveNetworkName, shortAddress, shorterName } from "../../../helper";
+import { PairAssetCard } from "../../card";
+import { useERC1155 } from "../../../hooks/useERC1155";
+import { useERC20 } from "../../../hooks/useERC20";
+import { useERC721 } from "../../../hooks/useERC721";
+import { Alert } from "../../../components/alert";
+import { Button2 } from "../../../components/button";
 import { ethers } from "ethers";
-import NFTCard from "./nftCard"
+import NFTCard from "../nftCard"
 import PairAssetList from "./pairAssets"
-
-const Container = styled.div`
-  margin-top: 1rem;
-  width: 100%;
-  max-width: 1300px;
-  margin-left: auto;
-  margin-right: auto; 
-`;
-
-const Image = styled.img`
-  width: 100%;
-`;
-
-const ImageContainer = styled.div`
-  overflow: hidden;
-  border-radius: 12px;
-`;
+import { Info } from "../index"
 
 const Title = styled.div`
   font-size: 24px;
@@ -47,53 +30,28 @@ const Description = styled.div`
   line-height: 22px;
 `;
 
-const StatusBar = styled.div`
-  display: flex;
+const Container = styled.div`
+  margin-top: 1rem;
+  width: 100%;
+  max-width: 1300px;
+  margin-left: auto;
+  margin-right: auto; 
+  background: #20283E;
+  border-radius: 6px;
+  border: 1px solid white;
+  color: white;
+  margin-bottom: 4rem;
 `;
 
-const L1Text = styled.div.attrs(() => ({ className: "name" }))``;
 
-const L2Text = styled(L1Text)`
-  display: inline;
-  font-size: 12px;
+const Image = styled.img`
+  width: 100%;
 `;
 
-
-const Attribute = styled.div` 
-
-  .accordion-item {
-    background: transparent;
-    border: 1px solid white;
-  }
-  .accordion-header {
-    
-  }
-
-  .list-group-item {
-    color: white; 
-    padding-top: 15px;
-    font-size: 14px;
-    padding-bottom: 15px;
-    background: transparent;
-    border: 1px solid white;
-    div {
-      flex: 1;
-      a {
-        color: inherit;
-      }
-      :last-child {
-        text-align: right;
-      }
-    }
-    display: flex;
-    flex-direction: row;
-    :not(:last-child) {
-      border-bottom: 0px;
-    }
-  }
-
-`
-
+const ImageContainer = styled.div`
+  overflow: hidden;
+  border-radius: 12px;
+`;
 
 const Attributes = styled.div`
   margin-top: 20px;
@@ -112,48 +70,7 @@ const AttributeItem = styled.div`
 `
 
 
-
-export const Info = styled(({ className, name, value, link }) => {
-  return (
-    <div className={className}>
-      <label>{name}</label>
-      {!link ? (
-        <p>{value || <Skeleton width="80px" />}</p>
-      ) : (
-        <Link href={`/collection/${link}`}>
-          <p style={{ textDecoration: "underline", cursor: "pointer" }}>{value}</p>
-        </Link>
-      )}
-    </div>
-  )
-})`
-  display: inline-block;
-  min-width: 100px;
-  text-align: left;
-  flex: 1;
-  label {
-    padding: 0px;
-    margin: 0px;
-    font-weight: 600;
-    color: var(--secondary);
-    font-size: 14px;
-  }
-  p {
-    margin: 0px;
-    padding: 0px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-  }
-  a {
-    color: inherit;
-    text-decoration: none;
-  } 
-`;
-
-
-const OrderDetails = ({
-  cid
-}) => {
+const MultichainOrderDetails = ({ cid }) => {
 
   const id = cid
 
@@ -225,7 +142,6 @@ const OrderDetails = ({
   return (
     <Container>
       <Flex flexWrap='wrap'>
-        {/* IMAGE */}
         <Box
           width={[1, 5 / 12]}
           p={3}>
@@ -285,10 +201,6 @@ const OrderDetails = ({
 
           <hr />
 
-          {chainId !== order.chainId && (
-            <Alert>Connect to correct network to trade</Alert>
-          )}
-
           <PairAssetList
             id={id}
             account={account}
@@ -301,7 +213,6 @@ const OrderDetails = ({
           />
 
           <hr />
-
           <Tabs style={{ marginTop: "1rem" }}>
             <TabList>
               <Tab>
@@ -354,15 +265,14 @@ const OrderDetails = ({
                   <div>
                     {new Date(Number(order.timestamp) * 1000).toLocaleDateString()}
                   </div>
-                </AttributeItem> 
+                </AttributeItem>
               </Attributes>
             </TabPanel>
             <TabPanel>
-              <Flex flexWrap='wrap' style={{marginBottom : "3rem"}}>
+              <Flex flexWrap='wrap' style={{ marginBottom: "3rem" }}>
                 {data && data.metadata && data.metadata.attributes && data.metadata.attributes.map((item, index) => {
                   return (
                     <Box
-                      key={index}
                       width={[1 / 3]}
                       p={1}>
                       <div style={{ border: "1px solid white", height: "80px", borderRadius: "8px", padding: "15px", fontSize: "14px" }}>
@@ -378,8 +288,7 @@ const OrderDetails = ({
         </Box>
       </Flex>
     </Container>
+  )
+}
 
-  );
-};
-
-export default OrderDetails;
+export default MultichainOrderDetails

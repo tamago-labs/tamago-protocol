@@ -45,6 +45,7 @@ const From = ({
   setStep,
   fromTokens,
   setFromTokens,
+  reset
 }) => {
   const { chainId } = useWeb3React();
 
@@ -87,9 +88,6 @@ const From = ({
 
   return (
     <Wrapper>
-
-
-
       <Tabs>
 
         <TabList>
@@ -219,6 +217,7 @@ const From = ({
       </Tabs>
 
       <ButtonContainer>
+        <Button style={{marginRight :"10px"}} onClick={() => reset()}>Back</Button>
         {fromData && <Button onClick={() => setStep(step + 1)}>Next</Button>}
       </ButtonContainer>
     </Wrapper>

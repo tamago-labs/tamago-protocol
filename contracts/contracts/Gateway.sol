@@ -224,8 +224,13 @@ contract Gateway is Marketplace {
             "The caller is not eligible to claim the NFT"
         );
 
+
         // giving NFT
         if (_isOriginChain == true) {
+            require(
+                orders[_cid].ended == false,
+                "The order has been fulfilled"
+            );
             _give(
                 orders[_cid].owner,
                 orders[_cid].assetAddress,
@@ -236,6 +241,10 @@ contract Gateway is Marketplace {
 
             orders[_cid].ended = true;
         } else {
+            require(
+                partialOrders[_cid].ended == false,
+                "The order has been fulfilled"
+            );
             _give(
                 address(this),
                 partialOrders[_cid].assetAddress,

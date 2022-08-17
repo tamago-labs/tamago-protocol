@@ -104,7 +104,7 @@ export const getProviders = () => {
     } else if (chainId === 137) {
       url = "https://nd-643-057-168.p2pify.com/2ffe10d04df48d14f0e9ff6e0409f649"
     } else if (chainId === 80001) {
-      url = "https://nd-546-345-588.p2pify.com/8947d77065859cda88213b612a0f8679"
+      url = "https://rpc-mumbai.maticvigil.com"
     } else if (chainId === 97) { 
       url = getRandomItem(["https://data-seed-prebsc-1-s1.binance.org:8545", "https://data-seed-prebsc-2-s1.binance.org:8545", "https://data-seed-prebsc-1-s3.binance.org:8545", "https://data-seed-prebsc-2-s3.binance.org:8545"])
     } else if (chainId === 56) {

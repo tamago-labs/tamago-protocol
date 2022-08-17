@@ -5,14 +5,14 @@ export const NFT_STORAGE_TOKEN = process.env.NFT_STORAGE_TOKEN
 export const SUPPORT_CHAINS = [42, 97, 80001, 43113, 137, 56, 43114, 1, 25];
 
 export const MAINNET_CHAINS = [137, 56, 43114, 1, 25];
-export const TESTNET_CHAINS = [42, 97, 80001, 43113];
+export const TESTNET_CHAINS =  [42, 97, 80001, 43113]
 
 export const COIN_GECKO_API_BASE = "https://api.coingecko.com/api/v3";
 
 export const NFT_MARKETPLACE = [
   {
     chainId: 42,
-    contractAddress: "0x49F74a10855288D2f390E784c349dCD3f44499AC",
+    contractAddress: "0x93DAcb3cBCB1FE63760B47d94602Dd7F958c434C",
   },
   {
     chainId: 25,
@@ -20,15 +20,15 @@ export const NFT_MARKETPLACE = [
   },
   {
     chainId: 80001,
-    contractAddress: "0x9286e7a1f66b6f99dB85A345117a330ED5ED79F1",
+    contractAddress: "0x334aB2599bC5ABEbAcA54C3E8aF68ee94Ad586fD",
   },
   {
     chainId: 97,
-    contractAddress: "0x6fdB032668F1F856fbC2e9F5Df348938aFBFBE17",
+    contractAddress: "0xbF06fEC9271B2440E8f3Be87392e2415025Cd4A9",
   },
   {
     chainId: 43113,
-    contractAddress: "0x9682DaBf26831523B21759A50b0a45832f82DBa3",
+    contractAddress: "0x7D17d5903eDEdB8597c9343c94FeD74E93589e47",
   },
   {
     chainId: 1,
@@ -45,6 +45,26 @@ export const NFT_MARKETPLACE = [
   {
     chainId: 137,
     contractAddress: "0xd0B14b314B6B983889b68E6EA307BF210156A050",
+  }
+];
+
+
+export const NFT_GATEWAY = [
+  {
+    chainId: 42,
+    contractAddress: "0xc3162221D51BbF9CF427a13b3d7c1f0AD0E711a9",
+  },
+  {
+    chainId: 80001,
+    contractAddress: "0xD84cE28B4D502237c518328230c39E8A371121a5",
+  },
+  {
+    chainId: 97,
+    contractAddress: "0x5F7392Ec616F829Ab54092e7F167F518835Ac740",
+  },
+  {
+    chainId: 43113,
+    contractAddress: "0xbF06fEC9271B2440E8f3Be87392e2415025Cd4A9",
   }
 ];
 
@@ -175,6 +195,7 @@ export const MOCK_TOKEN = [
     contract: "0x553588e084604a2677e10E46ea0a8A8e9D859146",
   },
 ];
+
 
 export const ERC20_TOKENS = [
   {
@@ -354,6 +375,13 @@ export const ERC20_TOKENS = [
   },
   {
     chainId: 42,
+    contractAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    tokenType: 3,
+    symbol: "ETH",
+    decimals: 18
+  },
+  {
+    chainId: 42,
     contractAddress: "0x8F6e0835CCA21892d5296D58EB0C8206B623BF2B",
     tokenType: 0,
     symbol: "USDC",
@@ -375,6 +403,13 @@ export const ERC20_TOKENS = [
   },
   {
     chainId: 80001,
+    contractAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    tokenType: 3,
+    symbol: "MATIC",
+    decimals: 18
+  },
+  {
+    chainId: 80001,
     contractAddress: "0x553588e084604a2677e10E46ea0a8A8e9D859146",
     tokenType: 0,
     symbol: "USDC",
@@ -389,6 +424,13 @@ export const ERC20_TOKENS = [
   },
   {
     chainId: 97,
+    contractAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    tokenType: 3,
+    symbol: "BNB",
+    decimals: 18
+  },
+  {
+    chainId: 97,
     contractAddress: "0x65e38111d8e2561aDC0E2EA1eeA856E6a43dC892",
     tokenType: 0,
     symbol: "USDC",
@@ -399,6 +441,13 @@ export const ERC20_TOKENS = [
     contractAddress: "0x553588e084604a2677e10E46ea0a8A8e9D859146",
     tokenType: 0,
     symbol: "DAI",
+    decimals: 18
+  },
+  {
+    chainId: 43113,
+    contractAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    tokenType: 3,
+    symbol: "AVAX",
     decimals: 18
   },
   {

@@ -37,6 +37,10 @@ const useMoralisAPI = () => {
         return `${resolveChainName(chainId)}Canceled`
     }
 
+    const resolveClaimedTable = (chainId) => {
+        return `${resolveChainName(chainId)}Claimed`
+    }
+
     const generateMoralisParams = (chainId) => {
         // FIXME : Remove from here
         if (TESTNET_CHAINS.indexOf(chainId) !== -1) {
@@ -61,7 +65,8 @@ const useMoralisAPI = () => {
         resolveChainName,
         resolveOrderCreatedTable,
         resolveSwappedTable,
-        resolveCanceledTable
+        resolveCanceledTable,
+        resolveClaimedTable
     }
 
 }
