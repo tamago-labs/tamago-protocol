@@ -42,6 +42,13 @@ https://bafkreiayczhsojnlcm7ra6iok6wpwlxznwtfsfzhbrxftog4fxdgq4rkvq.ipfs.nftstor
 
 After the entry is uploaded successfully on IPFS, the merkle tree will be contructed using the Keccak hash from 4 pieces of information `CID`, `chainId`, `assetAddress`, `assetTokenIdOrAmount`.
 
+## Cross-chain Transactions
+
+The non-cross-chain transaction requires a contract `marketplace.sol` to keeps track of all arbitrary entities, root hashes submitted by its users while multi-chain transactions require off-chain validator nodes that run by the script unders the `/script` folder, the validator acts as agents that translate off-chain arbitrary data from IPFS  then batch available outstanding requests into a single batch request and submit to every gateway contracts in the system.
+
+![tamago-nft-Page-4 drawio (2) (1)](https://user-images.githubusercontent.com/18402217/185110157-77cf3278-f6e5-4b93-88e7-81f06fe7b017.png)
+
+
 ## Deployment
 
 ### Cronos (Chain id : 25)
