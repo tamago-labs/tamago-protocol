@@ -45,7 +45,7 @@ const NFTCard = ({
           chainId: item.chainId,
         }).then(setData); 
       }
-    }, [item, index]);
+    }, [item, index, resolveMetadata]);
   
     const assetAddressContractErc721 = useERC721(
       item.assetAddress,
@@ -67,7 +67,7 @@ const NFTCard = ({
       } else {
         setOwnedItems(undefined);
       }
-    }, [account, item, tick]);
+    }, [account, item, tick,fetchItem]);
   
     const onApprove = useCallback(async () => {
       setLoading(true);

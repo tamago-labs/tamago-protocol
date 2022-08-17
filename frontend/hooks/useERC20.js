@@ -1,7 +1,7 @@
 import { useMemo, useEffect, useState, useCallback } from "react";
 import { ethers } from "ethers";
 import ERC20ABI from "../abi/erc20.json"
-import { NFT_MARKETPLACE } from "../constants";
+import { NFT_GATEWAY, NFT_MARKETPLACE } from "../constants";
 import { useWeb3React } from "@web3-react/core";
 
 export const useERC20 = (address, account, library) => {
@@ -36,9 +36,10 @@ export const useERC20 = (address, account, library) => {
     }, [contract, account]);
 
 
-    const isApproved = useCallback(async () => {
+    const isApproved = useCallback(async (isGateway = false) => {
         try {
-            const { contractAddress } = NFT_MARKETPLACE.find(item => item.chainId === chainId)
+            const ITEMS = isGateway ? NFT_GATEWAY : NFT_MARKETPLACE
+            const { contractAddress } =  ITEMS.find(item => item.chainId === chainId)
             return ((await contract.allowance(account, contractAddress)).toString() !== "0")
         } catch (e) {
             return false;
@@ -53,12 +54,13 @@ export const useERC20 = (address, account, library) => {
         }
     }, [contract, account, chainId]);
 
-    const approve = useCallback(async () => {
+    const approve = useCallback(async (isGateway) => {
         try {
-            if (await isApproved()) {
+            if (await isApproved(isGateway)) {
                 return
             }
-            const { contractAddress } = NFT_MARKETPLACE.find(item => item.chainId === chainId)
+            const ITEMS = isGateway ? NFT_GATEWAY : NFT_MARKETPLACE
+            const { contractAddress } =  ITEMS.find(item => item.chainId === chainId)
             const tx = await contract.approve(contractAddress, ethers.constants.MaxUint256)
             await tx.wait()
         } catch (e) {

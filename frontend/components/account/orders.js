@@ -195,7 +195,7 @@ const Orders = () => {
         {orders.length > 0 &&
           orders.map((order, index) => {
             return (
-              <div>
+              <div key={index}>
                 <SelectableCardCancelOrder
                   chainId={chainId}
                   onClickCard={onClickCard}

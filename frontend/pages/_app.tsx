@@ -55,7 +55,6 @@ const GlobalStyle = createGlobalStyle`
 
 function MyApp({ Component, pageProps }: AppProps) {
 
-   
   return (
     <>
       <Head>
@@ -65,7 +64,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <div>
         <Web3ReactProvider getLibrary={getLibrary}>
-          <MoralisProvider serverUrl={MORALIS_URL} appId={MORALIS_ID}>
+          <MoralisProvider serverUrl={MORALIS_URL || ""} appId={MORALIS_ID || ""}>
             <SkeletonTheme highlightColor="#ccc">
               <GlobalStyle />
               <Header />

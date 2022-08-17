@@ -234,20 +234,20 @@ const Collection = ({
                             <>
                                 <Icons>
                                     <Icon>
-                                        <a target="_blank" href={resolveBlockexplorerLink(Number(chain), address)}>
+                                        <a  rel="noreferrer" target="_blank" href={resolveBlockexplorerLink(Number(chain), address)}>
                                             <FileText size={16} />
                                         </a>
                                     </Icon>
                                     {info.links && info.links.website && (
                                         <Icon>
-                                            <a target="_blank" href={info.links.website}>
+                                            <a  rel="noreferrer" target="_blank" href={info.links.website}>
                                                 <ExternalLink style={{ margin: "auto" }} size={16} />
                                             </a>
                                         </Icon>
                                     )}
                                     {info.links && info.links.twitterLink && (
                                         <Icon>
-                                            <a target="_blank" href={info.links.twitterLink}>
+                                            <a  rel="noreferrer" target="_blank" href={info.links.twitterLink}>
                                                 <Twitter size={16} />
                                             </a>
                                         </Icon>
