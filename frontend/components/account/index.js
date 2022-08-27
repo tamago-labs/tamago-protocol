@@ -45,7 +45,6 @@ const AvatarWrapper = styled.div`
   }
 `;
 
-
 const TabBody = styled.div`
   display: flex;
   flex-wrap: wrap; 
@@ -53,13 +52,6 @@ const TabBody = styled.div`
   padding-bottom: 1rem; 
 
 `
-
-// const AccountTab = styled(Tabs)`
-//   .nav-link {
-//     color: #fff;
-//   }
-// `;
-
 
 const AccountPanel = styled.div`
   width: 100%;
@@ -102,19 +94,16 @@ const Account = () => {
       {account && (
         <>
           <AccountPanel>
-
             <Tabs>
               <TabList>
                 <Tab>
                   Your Orders
                 </Tab> 
               </TabList>
-
               <TabPanel> 
                  <Orders/>
               </TabPanel>
             </Tabs>
- 
           </AccountPanel>
         </>
       )}

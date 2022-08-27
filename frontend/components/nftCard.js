@@ -57,11 +57,8 @@ const NFTCard = ({
 }
 
 const OrderCardContainer = styled.div`
-    width: 100%;
-    cursor: pointer;
-    max-width: 1000px;
-    margin-left: auto;
-    margin-right: auto;
+ 
+    ${props => props.clickable && "cursor: pointer; "}
     height: 110px;
     margin-top: 15px;
     background-color: white;
@@ -146,6 +143,10 @@ const PairMini = ({
     )
 }
 
+const NonLink = styled.div`
+
+`
+
 export const OrderCard = ({
     delay,
     order,
@@ -160,6 +161,7 @@ export const OrderCard = ({
 
     useEffect(() => {
         if (order && order.tokenType !== 0) {
+            setData()
             resolveMetadata({
                 assetAddress: order.assetAddress,
                 tokenId: order.tokenId,
@@ -170,6 +172,7 @@ export const OrderCard = ({
     }, [order, delay]);
 
     useEffect(() => {
+        setOrderDetails()
         setTimeout(() => {
             cid && getOrder(cid).then(setOrderDetails);
         }, delay);
@@ -189,9 +192,11 @@ export const OrderCard = ({
         return [];
     }, [orderDetails]);
 
+    const WrappedLink = cid ? Link : NonLink
+
     return (
-        <Link href={fromGateway ? `/order/x?cid=${cid}` : `/order?cid=${cid}`}>
-            <OrderCardContainer invert={fromGateway}>
+        <WrappedLink href={fromGateway ? `/order/x?cid=${cid}` : `/order?cid=${cid}`}>
+            <OrderCardContainer invert={fromGateway} clickable={cid}>
                 <Flex flexWrap='wrap'>
                     <ImagePreview
                         width={[2 / 12]}
@@ -199,7 +204,7 @@ export const OrderCard = ({
                         <img src={order.tokenType === 0 ? "./images/coin.png" : data && data.metadata && data.metadata.image} />
                     </ImagePreview>
                     <Name
-                        width={[2 / 12]}
+                        width={[3 / 12]}
                     >
                         <h4>Name</h4>
                         <p>
@@ -218,7 +223,7 @@ export const OrderCard = ({
                         </p>
                     </Name>
                     <Name
-                        width={[5 / 12]}
+                        width={[4 / 12]}
                     >
                         <h4>Available to Swap With</h4>
                         <div style={{ display: "flex", flexDirection: "row" }}>
@@ -236,15 +241,16 @@ export const OrderCard = ({
                     <Name
                         width={[3 / 12]}
                     >
-                        <h4>Date Created</h4>
+                        <h4>Order Created</h4>
                         <p>
-                            {new Date(Number(order.timestamp)).toLocaleString()}
+                            {order && order.timestamp && new Date(Number(order.timestamp)).toLocaleString()}
+                            {order && !order.timestamp && <span>Unlisted</span>}
                         </p>
                     </Name>
                 </Flex>
                 {children}
             </OrderCardContainer>
-        </Link>
+        </WrappedLink>
     )
 }
 

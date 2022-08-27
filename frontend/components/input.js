@@ -39,13 +39,13 @@ export const InputGroup = styled.div`
     align-content: stretch; 
 
     >input {
-        flex: 1 0 auto; 
+        flex: 1 0 auto;
     }
 
     .input-group-addon {
-        background: #eee;
+        background: #eee; 
         border: 1px solid #ccc;
-        padding: 5px;
+        padding: 5px; 
       }
 
 `

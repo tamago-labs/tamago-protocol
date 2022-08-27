@@ -1,6 +1,9 @@
 import { MAINNET_CHAINS, SUPPORT_CHAINS, TESTNET_CHAINS } from "../constants";
+ import useOrder from "./useOrder";
+import Moralis from "moralis";
 
 const useMoralisAPI = () => {
+ 
 
     const resolveChainName = (chainId) => {
         switch (chainId) {
@@ -42,7 +45,6 @@ const useMoralisAPI = () => {
     }
 
     const generateMoralisParams = (chainId) => {
-        // FIXME : Remove from here
         if (TESTNET_CHAINS.indexOf(chainId) !== -1) {
             return {
                 serverUrl: process.env.MORALIS_TESTNET_SERVER_URL,

@@ -154,25 +154,24 @@ const Confirm = ({
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState([]);
   const { createOrder, approveNft, approveToken, register } = useOrder();
-  const { chainId, account } = useWeb3React();
-  // const [approveItem, setApproveItem] = useState([]);
+  const { chainId, account } = useWeb3React(); 
 
   //values return as List[]
   const values = useMemo(() => {
-    let orderList = [];
+    let orderList = []; 
     if (fromData) {
       fromData.map((item) => {
         let orderData = getOrderTemplate();
         orderData.chainId = item.chainId;
-        orderData.baseAssetAddress = item.token_address;
-        orderData.baseAssetTokenIdOrAmount = item.token_id;
-        orderData.baseAssetTokenType = item.contract_type === "ERC1155" ? 2 : 1;
+        orderData.baseAssetAddress = item.assetAddress;
+        orderData.baseAssetTokenIdOrAmount = item.assetTokenIdOrAmount;
+        orderData.baseAssetTokenType = item.metadata.contract_type === "ERC1155" ? 2 : 1;
         if (toData) {
           orderData.barterList = toData.map((item) => {
             return {
-              assetAddress: item.token_address,
-              assetTokenIdOrAmount: item.token_id,
-              tokenType: item.contract_type === "ERC1155" ? 2 : 1,
+              assetAddress: item.assetAddress,
+              assetTokenIdOrAmount: item.assetTokenIdOrAmount,
+              tokenType: item.metadata.contract_type === "ERC1155" ? 2 : 1,
               chainId: item.chainId,
             };
           });
@@ -184,40 +183,31 @@ const Confirm = ({
       });
     }
 
-    if (fromTokens) {
-      fromTokens.map((item) => {
-        let orderToken = getOrderTemplateToken();
-        orderToken.chainId = item.chainId;
-        orderToken.baseAssetAddress = item.baseAssetAddress;
-        orderToken.baseAssetTokenIdOrAmount = item.baseAssetTokenIdOrAmount;
-        orderToken.baseAssetTokenType = item.baseAssetTokenType;
-        if (toData) {
-          orderToken.barterList = toData.map((item) => {
-            return {
-              assetAddress: item.token_address,
-              assetTokenIdOrAmount: item.token_id,
-              tokenType: item.contract_type === "ERC1155" ? 2 : 1,
-              chainId: item.chainId,
-            };
-          });
-        }
-        if (toTokens) {
-          orderToken.barterList = orderToken.barterList.concat(toTokens);
-        }
-        orderList.push(orderToken);
-      });
-    }
+    // if (fromTokens) {
+    //   fromTokens.map((item) => {
+    //     let orderToken = getOrderTemplateToken();
+    //     orderToken.chainId = item.chainId;
+    //     orderToken.baseAssetAddress = item.baseAssetAddress;
+    //     orderToken.baseAssetTokenIdOrAmount = item.baseAssetTokenIdOrAmount;
+    //     orderToken.baseAssetTokenType = item.baseAssetTokenType;
+    //     if (toData) {
+    //       orderToken.barterList = toData.map((item) => {
+    //         return {
+    //           assetAddress: item.token_address,
+    //           assetTokenIdOrAmount: item.token_id,
+    //           tokenType: item.contract_type === "ERC1155" ? 2 : 1,
+    //           chainId: item.chainId,
+    //         };
+    //       });
+    //     }
+    //     if (toTokens) {
+    //       orderToken.barterList = orderToken.barterList.concat(toTokens);
+    //     }
+    //     orderList.push(orderToken);
+    //   });
+    // }
     return orderList;
   }, [fromData, toData, chainId, toTokens, fromTokens]);
-
-  //get set unique asset address to approve
-  // useEffect(() => {
-  //   const approveItemSet = new Set();
-  //   values.map((item) => {
-  //     approveItemSet.add(item.baseAssetAddress);
-  //   });
-  //   setApproveItem(approveItemSet);
-  // }, [values]);
 
   const onGenerateId = useCallback(async () => {
     let orderIdList = [];
@@ -273,7 +263,7 @@ const Confirm = ({
 
   const onRegister = useCallback(async () => {
     setLoading(true);
-    try {
+    try { 
       await register(orderId, values, isMultiChain);
 
       setProcess(PROCESS.CONFIRM);
@@ -344,49 +334,12 @@ const Confirm = ({
                 >
                   <div className="name">
                     {nft.name}
-                    {` `}#{shorterName(nft.token_id)}
-                    {/* {nft.baseAssetTokenType !== 0 ? (
-                      <>
-                        {nft.name}
-                        {` `}#{shorterName(nft.baseAssetTokenIdOrAmount)}
-                      </>
-                    ) : (
-                      <>
-                        {ethers.utils.formatUnits(
-                          nft.baseAssetTokenIdOrAmount,
-                          nft.decimals
-                        )}
-                        {` `}
-                        {nft.symbol}
-                      </>
-                    )} */}
+                    {` `}#{shorterName(nft.assetTokenIdOrAmount)}
                   </div>
                 </CommonCard>
               );
             })}
-          </div>
-          {/* <CommonCard
-            image={fromData && fromData.image}
-            chainId={fromData && Number(fromData.chainId)}
-          >
-            <div className="name">
-              {fromData.baseAssetTokenType !== 0 ? (
-                <>
-                  {fromData.name}
-                  {` `}#{shorterName(fromData.baseAssetTokenIdOrAmount)}
-                </>
-              ) : (
-                <>
-                  {ethers.utils.formatUnits(
-                    fromData.baseAssetTokenIdOrAmount,
-                    fromData.decimals
-                  )}
-                  {` `}
-                  {fromData.symbol}
-                </>
-              )}
-            </div>
-          </CommonCard> */}
+          </div> 
         </PreviewFrom>
         <PreviewDivider>
           <div style={{ margin: "auto" }}>
@@ -413,7 +366,7 @@ const Confirm = ({
                 </CommonCard>
               );
             })}
-            {toData.map((nft, index) => {
+            {toData.map((nft, index) => { 
               return (
                 <CommonCard
                   key={index}
@@ -421,8 +374,7 @@ const Confirm = ({
                   chainId={nft && Number(nft.chainId)}
                 >
                   <div className="name">
-                    {nft.metadata.name}
-                    {` `}#{shorterName(nft.token_id)}
+                    {nft.metadata.name} 
                   </div>
                 </CommonCard>
               );
@@ -485,7 +437,7 @@ const Confirm = ({
             disabled={
               loading ||
               process === PROCESS.CONFIRM ||
-              values[0].barterList.length === 0
+              values[0] && values[0].barterList.length === 0
             }
             style={{padding : loading && "5px 10px" }}
             onClick={proceed}

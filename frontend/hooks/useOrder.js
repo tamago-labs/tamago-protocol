@@ -767,20 +767,20 @@ const useOrder = () => {
     chainId,
   }) => {
 
-
-
     return new Promise((resolve) => {
       axios
         .get(
-          `${API_BASE}/v2/collection/${chainId}/${assetAddress}`
+          `https://api.tamagonft.xyz/v1/collection/${chainId}/${assetAddress}`
         )
         .then(({ data }) => {
-          resolve(data);
+          resolve({
+            collection: data
+          });
         });
 
-      setTimeout(() => {
-        resolve();
-      }, 5000);
+      // setTimeout(() => {
+      //   resolve();
+      // }, 5000);
     });
   };
 
@@ -801,36 +801,37 @@ const useOrder = () => {
       return cacheData.collection
     }
 
-
-    await Moralis.start(generateMoralisParams(chainId));
+    // await Moralis.start(generateMoralisParams(chainId));
 
     const data = COLLECTIONS.find(item => item.assetAddress.toLowerCase() === assetAddress && chainId === item.chainId)
 
     let totalSupply = 0
     let totalOwners = 0
+    let totalOrders = 0
 
-    try {
+    // try {
 
-      const options = {
-        address: `${assetAddress}`,
-        chain: `0x${chainId.toString(16)}`,
-      };
+    //   const options = {
+    //     address: `${assetAddress}`,
+    //     chain: `0x${chainId.toString(16)}`,
+    //   };
 
-      if (assetAddress !== "0x2953399124f0cbb46d2cbacd8a89cf0599974963") {
-        const NFTs = await Moralis.Web3API.token.getAllTokenIds(options);
-        totalSupply = NFTs.total
-      } else {
-        totalSupply = 1655037
-      }
+    //   if (assetAddress !== "0x2953399124f0cbb46d2cbacd8a89cf0599974963") {
+    //     const NFTs = await Moralis.Web3API.token.getAllTokenIds(options);
+    //     totalSupply = NFTs.total
+    //   } else {
+    //     totalSupply = 1655037
+    //   }
 
-    } catch (e) {
-      console.log(e)
-    }
+    // } catch (e) {
+    //   console.log(e)
+    // }
 
     return {
       ...data,
       totalOwners,
-      totalSupply
+      totalSupply,
+      totalOrders
     }
   }
 
@@ -859,12 +860,10 @@ const useOrder = () => {
     return new Promise((resolve) => {
       axios
         .get(
-          `${API_BASE}/nft/metadata/${assetAddress}/${tokenId}/0x${chainId.toString(
-            16
-          )}`
+          `https://api.tamagonft.xyz/v1/metadata/${chainId}/${assetAddress}/${tokenId}`
         )
         .then(({ data }) => {
-          resolve(data);
+          resolve(data.metadata);
         });
 
       setTimeout(() => {
@@ -877,7 +876,7 @@ const useOrder = () => {
     const options = {
       address: `${assetAddress}`,
       token_id: `${tokenId}`,
-      chain: `0x${chainId.toString(16)}`,
+      chain: `0x${Number(chainId).toString(16)}`,
     };
 
     try {
@@ -901,6 +900,18 @@ const useOrder = () => {
 
         if (
           data.metadata &&
+          data.metadata.image &&
+          data.metadata.image.indexOf("gateway.pinata.cloud") !== -1
+        ) {
+          data.metadata.image = data.metadata.image.replaceAll(
+            "https://gateway.pinata.cloud/ipfs/",
+            "https://nftstorage.link/ipfs/"
+          );
+
+        }
+
+        if (
+          data.metadata &&
           !data.metadata.image &&
           data.metadata["image_url"]
         ) {
@@ -910,7 +921,6 @@ const useOrder = () => {
         return data;
       }
     } catch (e) { }
-
     const tokenIdMetadata = await Web3Api.token.getTokenIdMetadata(options)
     return await getMetadata(tokenIdMetadata);
   };
@@ -1146,12 +1156,12 @@ const useOrder = () => {
       const events = await getAllEvents()
       const messages = generateRelayMessages(events.filter(item => item.fromGateway));
 
-       // Construct the merkle 
-       const leaves = messages.map(({ cid, chainId, assetAddress, assetTokenIdOrAmount }) => ethers.utils.keccak256(ethers.utils.solidityPack(["string", "uint256", "address", "uint256"], [cid, chainId, assetAddress, assetTokenIdOrAmount]))) // Order ID, Chain ID, Asset Address, Token ID
-       
-       const tree = new MerkleTree(leaves, keccak256, { sortPairs: true })
+      // Construct the merkle 
+      const leaves = messages.map(({ cid, chainId, assetAddress, assetTokenIdOrAmount }) => ethers.utils.keccak256(ethers.utils.solidityPack(["string", "uint256", "address", "uint256"], [cid, chainId, assetAddress, assetTokenIdOrAmount]))) // Order ID, Chain ID, Asset Address, Token ID
 
-       const proof = tree.getHexProof(
+      const tree = new MerkleTree(leaves, keccak256, { sortPairs: true })
+
+      const proof = tree.getHexProof(
         ethers.utils.keccak256(
           ethers.utils.solidityPack(
             ["string", "uint256", "address", "uint256"],
@@ -1238,6 +1248,30 @@ const useOrder = () => {
     return data;
   }, []);
 
+  const fetchNFTFromAccount = async ({
+    chainId,
+    account
+  }) => {
+
+    await Moralis.start(generateMoralisParams(chainId));
+
+    const options = {
+      chain: `0x${Number(chainId).toString(16)}`,
+      address: account,
+    };
+    let result = await Moralis.Web3API.account.getNFTs(options);
+
+    let items = result.result
+
+    while (result.next) {
+      result = await result.next()
+      const newItems = result.result
+      items = items.concat(newItems)
+    }
+
+    const data = await Promise.all(items.map((item) => getMetadata(item)));
+    return data.filter((nft) => nft.metadata);
+  }
 
   return {
     getMetadata,
@@ -1256,7 +1290,8 @@ const useOrder = () => {
     getCollectionInfo,
     getFloorPrice,
     getCollectionOwners,
-    partialSwap
+    partialSwap,
+    fetchNFTFromAccount
   };
 };
 

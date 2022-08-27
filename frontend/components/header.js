@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Link from "next/link";
 import { useWeb3React } from "@web3-react/core"
 import { useState, useContext } from 'react';
-import { Button } from "./button"
+import { Button, ToggleButton } from "./button"
 import useEagerConnect from "../hooks/useEagerConnect"
 import SwitchChainModal from "../components/modals/switchChain"
 import useInactiveListener from "../hooks/useInactiveListener"
@@ -13,6 +13,10 @@ import {
 } from "../helper";
 import { supportedChainIds } from "../config/connectors"
 import WalletsModal from "./modals/wallets"
+import Image from "next/image"
+import { AccountContext } from "../hooks/useAccount"
+import AccountModal from "../components/modals/accountModal"
+
 
 const Container = styled.div.attrs(() => ({}))`
     width: 100%;
@@ -27,36 +31,30 @@ const Container = styled.div.attrs(() => ({}))`
         font-size: 14px;
     }
 
-    button {
-        margin-left: auto;
-    }
+     
 
 `
 
 const Brand = styled.div` 
     
     padding: 10px;
-    width: 300px;
-    a {
-        font-weight: 700;
-        text-shadow: 3px 3px black;
-        font-size: 20px;
-        color: inherit;
-        text-decoration: none;
-        :hover {
-            text-decoration: none;
-        }
-    }
+    width: 350px; 
+    display: flex;
+    flex-direction: row;
 
+    div {
+        cursor: pointer;
+    }
+ 
 `
 
 const Menu = styled.div`
     margin: auto;
+    font-size: 18px;
 
-    a {
-        :not(:last-child) {
-            margin-right: 15px;
-        }
+    a { 
+        margin-right: 7px;
+        margin-left: 7px; 
     }
 
     @media only screen and (max-width: 600px) {
@@ -65,17 +63,19 @@ const Menu = styled.div`
 
 `
 
-const Address = styled.div` 
-    font-size: 16px;
-    padding: 10px 0px;
-    font-weight: 600;
-    text-shadow: 3px 3px black;
-`
-
 const Buttons = styled.div` 
-    text-align: right;
-    width: 300px; 
-    
+    width: 350px; 
+    display: flex;
+    padding-right: 40px;
+
+    button {
+        margin-left: 5px;
+    }
+
+    @media only screen and (max-width: 600px) {
+        padding-right: 0px;
+    }
+     
 `
 
 const NetworkBadge = styled(({ className, toggleSwitchChain, chainId }) => {
@@ -106,8 +106,7 @@ const NetworkBadge = styled(({ className, toggleSwitchChain, chainId }) => {
         padding: 3px 10px;
         >div {
             margin: auto;
-        } 
-        margin-right: 10px;
+        }  
     }
 
     .image-container {
@@ -130,9 +129,10 @@ const NetworkBadge = styled(({ className, toggleSwitchChain, chainId }) => {
 
 const Header = () => {
 
-
     const [switchChainVisible, setSwitchChainVisible] = useState(false);
+    const [accountVisible, setAccountVisible] = useState(false)
     const { account, chainId, library } = useWeb3React()
+    const { isMainnet, updateNetwork } = useContext(AccountContext)
 
     const toggleSwitchChain = () => setSwitchChainVisible(!switchChainVisible);
 
@@ -140,6 +140,7 @@ const Header = () => {
     const [open, setOpen] = useState()
 
     const toggleWalletConnect = () => setWalletLoginVisible(!walletLoginVisible)
+    const toggleAccount = () => setAccountVisible(!accountVisible)
 
     // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
     const triedEager = useEagerConnect()
@@ -159,52 +160,95 @@ const Header = () => {
                 toggleModal={toggleSwitchChain}
                 modalVisible={switchChainVisible}
             />
+            <AccountModal
+                toggle={toggleAccount}
+                visible={accountVisible}
+            />
             <Container>
                 <Brand>
                     <Link href="/">
-                        Tamago Protocol
+                        <div>
+                            <Image
+                                src={"/images/logo-white.svg"}
+                                width="180px"
+                                height="40px"
+                            />
+                        </div>
                     </Link>
+                    <div style={{ marginTop: "auto", marginBottom: "auto", display: "flex", flexDirection: "row" }}>
+                        <ToggleButton active={isMainnet} onClick={() => updateNetwork(true)}>
+                            Mainnet
+                        </ToggleButton>
+                        <ToggleButton style={{ marginLeft: "5px" }} active={!isMainnet} onClick={() => updateNetwork(false)}>
+                            Testnet
+                        </ToggleButton>
+                    </div>
                 </Brand>
                 <Menu>
-
-                    <Link href="/">
-                        Marketplace
-                    </Link>
-                    <Link href="/faucet">
-                        Faucet
-                    </Link>
-                    {account && (
-                        <Link href="/account">
-                            Account
+                    {/* <Link href="/launchpad">
+                        Launchpad
+                    </Link> */}
+                    {isMainnet === true
+                        ?
+                        <>
+                            {/* <Link href="https://testnet.tamagonft.xyz">
+                            Testnet Version
+                        </Link> */}
+                        </>
+                        :
+                        <Link href="/faucet">
+                            Faucet
+                        </Link>
+                    }
+                    {isSupported && (
+                        <Link href="/sell">
+                            Sell
                         </Link>
                     )}
+                    {/* {account && (
+                        <>
+                            <Link href="/account">
+                                Account
+                            </Link>
+                        </>
+                    )} */}
                 </Menu>
                 <Buttons>
-                    {!account &&
-                        (
-                            <Button onClick={toggleWalletConnect}>
-                                Connect
-                            </Button>
-                        )
-                    }
-                    {account &&
-                        (
-                            <div style={{ display: "flex", flexDirection: "row" }}>
-                                <NetworkBadge
-                                    chainId={chainId}
-                                    toggleSwitchChain={toggleSwitchChain}
-                                />
-                                {isSupported && (
-                                    <Link href="/create">
-                                        <Button>
-                                            Sell
-                                        </Button>
-                                    </Link>
+                    <div style={{ marginLeft: "auto" }}>
+                        {!account &&
+                            (
+                                <Button onClick={toggleWalletConnect}>
+                                    Connect
+                                </Button>
+                            )
+                        }
+                        {account &&
+                            (
+                                <div style={{ display: "flex", flexDirection: "row" }}>
+                                     
+                                    <NetworkBadge
+                                        chainId={chainId}
+                                        toggleSwitchChain={toggleSwitchChain}
+                                    />
+                                    {isSupported && (
+                                        <>
+                                            {/* <Link href="/sell">
+                                                <Button>
+                                                    Sell
+                                                </Button>
+                                            </Link> */}
+                                            <Link href="/account">
+                                                <Button>
+                                                    Account
+                                                </Button>
+                                            </Link>
+                                        </>
+                                    )}
+                                </div>
+                            )
+                        }
+                    </div>
 
-                                )}
-                            </div>
-                        )
-                    }
                 </Buttons>
             </Container>
         </>

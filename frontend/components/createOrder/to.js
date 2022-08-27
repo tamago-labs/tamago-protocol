@@ -6,6 +6,7 @@ import {
   resolveNetworkName,
   shorterName,
 } from "../../helper";
+import { Flex, Box } from 'reflexbox'
 import { ethers } from "ethers";
 import { InputGroup } from "../input"
 import { X, DollarSign, Clipboard, ExternalLink } from "react-feather";
@@ -15,6 +16,8 @@ import { ERC20_TOKENS, TESTNET_CHAINS } from "../../constants";
 import { Button, ToggleButton } from "../button";
 import { MOCKS } from ".";
 import { Tabs, TabList, Tab, TabPanel } from 'react-tabs';
+import LoadingIndicator from "../loadingIndicator";
+import { CollectionCard } from "../collectionCard"
 
 const SearchInput = styled.input.attrs(() => ({
   type: "text",
@@ -94,9 +97,7 @@ const TabBody = styled.div`
   overflow-x: auto;
   padding-top: 1rem;
   padding-bottom: 1rem; 
-
 `
-
 
 const To = (props) => {
 
@@ -199,18 +200,99 @@ const ToSameChain = ({
     setActiveTab(tab);
   };
 
+  const collections = searchNFT ? searchNFT.reduce((arr, item) => {
+    if (arr[item['token_address']]) {
+      arr[item['token_address']].push(item['token_id'])
+    } else {
+      arr[item['token_address']] = [item['token_id']]
+    }
+
+    return arr
+  }, []) : []
+
   return (
     <Wrapper>
-
       <Tabs>
         <TabList>
           <Tab>
-            ERC-20
+            NFT(s) (Selected : {toData ? toData.length : 0})
           </Tab>
           <Tab>
-            NFT
+            Tokens (Selected : {toTokens ? toTokens.length : 0})
           </Tab>
         </TabList>
+
+        <TabPanel>
+          <TabBody>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                width: "100%",
+              }}
+            >
+              <div
+                style={{
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  marginBottom: "1rem",
+                  display: "flex",
+                  flexDirection: "row"
+                }}
+              >
+                <SearchInput value={searchText} onChange={onSearchTextChange} />
+                <div style={{ marginTop: "auto", marginBottom: "auto", paddingTop: "10px" }}>
+                  <Button
+                    onClick={() =>
+                      fetchSearchNFTs({
+                        searchText,
+                        chainId,
+                      })
+                    }
+                  >
+                    Search
+                  </Button>
+                </div>
+
+              </div>
+            </div>
+
+            {searchNFT && !searchLoading
+              ? (
+                <Flex style={{ width: "100%" }} flexWrap="wrap">
+                  {Object.keys(collections).map((item, index) => {
+                    const metadata = collections[item].map(tokenId => {
+                      let nft = searchNFT.find(nft => nft['token_address'] === item && nft['token_id'] ===tokenId)
+                      if (nft && nft.metadata) {
+                        nft.metadata['contract_type'] = nft.contract_type
+                      }
+                      return nft.metadata
+                    })
+                    return (
+                      <Box p={1} width={[1 / 3]}>
+                        <CollectionCard
+                          key={index}
+                          assetAddress={item}
+                          metadata={metadata}
+                          tokens={collections[item]}
+                          chainId={chainId} 
+                          onClickCard={onClickCard}
+                          fromData={toData}
+                        />
+                      </Box>
+                    )
+                  })}
+                </Flex>
+              )
+              : searchLoading && (
+                <>
+                  <LoadingIndicator /> 
+                </>
+              )}
+
+          </TabBody>
+        </TabPanel>
 
         <TabPanel>
           <TabBody>
@@ -281,87 +363,7 @@ const ToSameChain = ({
           </TabBody>
         </TabPanel>
 
-        <TabPanel>
-          <TabBody>
 
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                width: "100%",
-              }}
-            >
-              <div
-                style={{
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                  marginBottom: "1rem",
-                  display: "flex",
-                  flexDirection: "row"
-                }}
-              >
-                <SearchInput value={searchText} onChange={onSearchTextChange} />
-                <div style={{ marginTop: "auto", marginBottom: "auto", paddingTop: "10px" }}>
-                  <Button
-                    onClick={() =>
-                      fetchSearchNFTs({
-                        searchText,
-                        chainId,
-                      })
-                    }
-                  >
-                    Search
-                  </Button>
-                </div>
-
-              </div>
-            </div>
-
-            {searchNFT && !searchLoading
-              ? searchNFT.map((nft, index) => (
-                <>
-                  <SelectableCard
-                    image={nft.metadata.image}
-                    chainId={chainId}
-                    selected={toData.find(
-                      (data) => data.token_hash === nft.token_hash
-                    )}
-                    onClick={() => onClickCard({ ...nft, chainId })}
-                  >
-                    <div className="name">
-                      {shorterName(nft.metadata.name)}
-                      {` `}#{shorterName(nft.token_id)}
-                    </div>
-                  </SelectableCard>
-                </>
-              ))
-              : searchLoading && (
-                <>
-                  <Skeleton
-                    height="275px"
-                    width="260px"
-                    style={{ borderRadius: "6px", margin: "6px" }}
-                  />
-                  <Skeleton
-                    height="275px"
-                    width="260px"
-                    style={{ borderRadius: "6px", margin: "6px" }}
-                  />
-                  <Skeleton
-                    height="275px"
-                    width="260px"
-                    style={{ borderRadius: "6px", margin: "6px" }}
-                  />
-                  <Skeleton
-                    height="275px"
-                    width="260px"
-                    style={{ borderRadius: "6px", margin: "6px" }}
-                  />
-                </>
-              )}
-
-          </TabBody>
-        </TabPanel>
 
       </Tabs>
 
@@ -453,11 +455,8 @@ const ToMultiChain = ({
     return mocks;
   }, [searchChain]);
 
-
-
   return (
     <Wrapper>
-
       <Tabs>
         <TabList>
           <Tab>
@@ -467,36 +466,17 @@ const ToMultiChain = ({
             NFT
           </Tab>
         </TabList>
-
         <TabPanel>
           <ChainSelector
             getter={searchChain}
             setter={setSearchChain}
           />
-          {/* <ChainSelector
-            onChange={(e) => {
-              setSearchChain(Number(e.target.value))
-            }}
-            defaultValue={searchChain}
-          >
-
-            {true && TESTNET_CHAINS.map((item, index) => (
-              <option key={`mainnet-${index}`} style={{ color: "black" }} value={item}>
-                {resolveNetworkName(item)}
-              </option>
-            ))
-
-            }
-
-          </ChainSelector> */}
           <TabBody>
-
             {tokens.map((token, index) => {
               const token_hash = `${token.chainId}${token.contractAddress}`;
               const isSelected = toTokens.find(
                 (data) => data.token_hash === token_hash
               );
-
               return (
                 <SelectableCard
                   key={index}
@@ -585,7 +565,7 @@ const ToMultiChain = ({
                     onClick={() =>
                       fetchSearchNFTs({
                         searchText,
-                        chainId : searchChain
+                        chainId: searchChain
                       })
                     }
                   >
@@ -605,7 +585,7 @@ const ToMultiChain = ({
                     selected={toData.find(
                       (data) => data.token_hash === nft.token_hash
                     )}
-                    onClick={() => onClickCard({ ...nft, chainId : searchChain })}
+                    onClick={() => onClickCard({ ...nft, chainId: searchChain })}
                   >
                     <div className="name">
                       {shorterName(nft.metadata.name)}
@@ -638,12 +618,9 @@ const ToMultiChain = ({
                   />
                 </>
               )}
-
           </TabBody>
         </TabPanel>
-
       </Tabs>
-
       <ButtonContainer>
         {step > 1 && <Button onClick={() => setStep(step - 1)}>Back</Button>}
         {toData && (

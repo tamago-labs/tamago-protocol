@@ -2,6 +2,7 @@ import { useWeb3React } from "@web3-react/core";
 import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import Skeleton from "react-loading-skeleton";
+import { Flex, Box } from 'reflexbox'
 import { Tabs, TabList, Tab, TabPanel } from 'react-tabs';
 import { Alert } from "../alert";
 import { ERC20_TOKENS } from "../../constants";
@@ -11,6 +12,8 @@ import { Button } from "../button";
 import { MOCKS } from ".";
 import { ethers } from "ethers";
 import { InputGroup } from "../input"
+import LoadingIndicator from "../loadingIndicator";
+import { CollectionCard } from "../collectionCard"
 
 const ButtonContainer = styled.div`
   width: 100%;
@@ -86,138 +89,61 @@ const From = ({
     }
   }, [fromTokens, fromData]);
 
+  const collections = nfts ? nfts.reduce((arr, item) => {
+    if (arr[item['token_address']]) {
+      arr[item['token_address']].push(item['token_id'])
+    } else {
+      arr[item['token_address']] = [item['token_id']]
+    }
+
+    return arr
+  }, []) : []
+
   return (
     <Wrapper>
       <Tabs>
-
         <TabList>
           <Tab >
-            NFT
-          </Tab>
-          <Tab>
-            ERC-20
+            NFT(s) (Selected : {fromData ? fromData.length : 0})
           </Tab>
         </TabList>
-
         <TabPanel>
           <TabBody>
-            {nfts &&
-              nfts.length > 0 &&
-              nfts.map((nft, index) => (
-                <SelectableCard
-                  key={index}
-                  image={nft.metadata.image}
-                  chainId={chainId}
-                  disabled={disabledCard}
-                  selected={fromData.find(
-                    (data) => data.token_hash === nft.token_hash
-                  )}
-                  onClick={() => onClickCard({ ...nft, chainId })}
-                >
-                  <div className="name">
-                    {nft.name || nft.metadata.name}
-                    {` `}#{shorterName(nft.token_id)}
-                  </div>
-                </SelectableCard>
-              ))}
-            {!nfts && (
+            {!nfts &&
               <>
-                <Skeleton
-                  height="275px"
-                  width="260px"
-                  style={{ borderRadius: "6px", margin: "6px" }}
-                />
-                <Skeleton
-                  height="275px"
-                  width="260px"
-                  style={{ borderRadius: "6px", margin: "6px" }}
-                />
-                <Skeleton
-                  height="275px"
-                  width="260px"
-                  style={{ borderRadius: "6px", margin: "6px" }}
-                />
-                <Skeleton
-                  height="275px"
-                  width="260px"
-                  style={{ borderRadius: "6px", margin: "6px" }}
-                />
+                <LoadingIndicator />
               </>
-            )}
-          </TabBody>
-        </TabPanel>
-        <TabPanel>
-          <TabBody>
-            {tokens.map((token, index) => {
-              const token_hash = `${token.chainId}${token.contractAddress}`;
-              const isSelected = fromTokens.find(
-                (data) => data.token_hash === token_hash
-              );
-              return (
-                <SelectableCard
-                  key={index}
-                  image={"../images/coin.png"}
-                  chainId={chainId}
-                  selected={isSelected}
-                  disabled={disabledCard}
-                  onClick={() => {
-                    if (!isSelected) {
-                      setFromTokens([
-                        ...fromTokens,
-                        {
-                          chainId: token.chainId,
-                          baseAssetAddress: token.contractAddress,
-                          baseAssetTokenIdOrAmount: `${ethers.utils.parseUnits(
-                            `${tokenAmount[index]}`,
-                            token.decimals
-                          )}`,
-                          baseAssetTokenType: 0,
-                          token_hash,
-                          image: "../images/coin.png",
-                          decimals: token.decimals,
-                          symbol: token.symbol,
-                        },
-                      ]);
-                    } else {
-                      setFromTokens(
-                        fromTokens.filter(
-                          (item) => item.token_hash !== token_hash
-                        )
-                      );
-                    }
-                  }}
-                >
-                  <div style={{ color: "black", paddingTop: "10px" }}>
-                    <InputGroup>
-                      <input
-                        type="number"
-                        min={1}
-                        step={1}
-                        value={tokenAmount[index]}
-                        disabled={isSelected}
-                        onChange={(e) => {
-                          const amount = Number(e.target.value);
-                          setTokenAmount(
-                            tokenAmount.map((v, i) =>
-                              i === index ? amount : v
-                            )
-                          );
-                        }}
-                      />
-                      <span class="input-group-addon">
-                        {token.symbol}
-                      </span>
-                    </InputGroup>
-                  </div>
-                </SelectableCard>
-              );
-            })}
+            }
+            <Flex style={{ width: "100%" }} flexWrap="wrap">
+              {Object.keys(collections).map((item, index) => { 
+                const metadata = collections[item].map(tokenId => {
+                  let nft = nfts.find(nft => nft['token_address'] === item && nft['token_id'] ===tokenId)
+                  if (nft && nft.metadata) {
+                    nft.metadata['contract_type'] = nft.contract_type
+                  }
+                  return nft.metadata
+                })
+                return (
+                  <Box p={1} width={[1 / 3]}>
+                    <CollectionCard
+                      key={index}
+                      assetAddress={item}
+                      tokens={collections[item]}
+                      metadata={metadata}
+                      chainId={chainId}
+                      disabledCard={disabledCard}
+                      onClickCard={onClickCard}
+                      fromData={fromData}
+                    />
+                  </Box>
+                )
+              })}
+            </Flex>
           </TabBody>
         </TabPanel>
       </Tabs>
-
       <ButtonContainer>
-        <Button style={{marginRight :"10px"}} onClick={() => reset()}>Back</Button>
+        <Button style={{ marginRight: "10px" }} onClick={() => reset()}>Back</Button>
         {fromData && <Button onClick={() => setStep(step + 1)}>Next</Button>}
       </ButtonContainer>
     </Wrapper>

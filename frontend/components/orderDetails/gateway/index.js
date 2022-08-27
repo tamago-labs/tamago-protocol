@@ -140,154 +140,157 @@ const MultichainOrderDetails = ({ cid }) => {
   }
 
   return (
-    <Container>
-      <Flex flexWrap='wrap'>
-        <Box
-          width={[1, 5 / 12]}
-          p={3}>
-          <ImageContainer>
-            {data && (
-              <Image
-                src={data && data.metadata && data.metadata.image}
-                alt="image"
-              />
+    <>
+      <Alert>Be aware that the cross-chain swaps is on the experiment phase</Alert>
+      <Container>
+        <Flex flexWrap='wrap'>
+          <Box
+            width={[1, 5 / 12]}
+            p={3}>
+            <ImageContainer>
+              {data && (
+                <Image
+                  src={data && data.metadata && data.metadata.image}
+                  alt="image"
+                />
+              )}
+              {order.baseAssetTokenType === 0 && (
+                <Image src={"../images/coin.png"} alt="image" />
+              )}
+              {order.baseAssetTokenType !== 0 && !data && (
+                <Skeleton height="500px" />
+              )}
+            </ImageContainer>
+          </Box>
+          {/* INFO */}
+          <Box
+            width={[1, 7 / 12]}
+            p={3}>
+
+            {order.baseAssetTokenType !== 0 && (
+              <>
+                <Title>
+                  {data && data.metadata && data.metadata.name
+                    ? data.metadata.name
+                    : order.title}
+                </Title>
+                <Description>
+                  {data && data.metadata && data.metadata.description}
+                </Description>
+              </>
             )}
+
             {order.baseAssetTokenType === 0 && (
-              <Image src={"../images/coin.png"} alt="image" />
+              <>
+                <Title>
+                  {resolveTokenValue({
+                    assetAddress: order.baseAssetAddress,
+                    tokenId: order.baseAssetTokenIdOrAmount,
+                    chainId: order.chainId,
+                  })}
+                  {` `}For Sell
+                </Title>
+              </>
             )}
-            {order.baseAssetTokenType !== 0 && !data && (
-              <Skeleton height="500px" />
-            )}
-          </ImageContainer>
-        </Box>
-        {/* INFO */}
-        <Box
-          width={[1, 7 / 12]}
-          p={3}>
 
-          {order.baseAssetTokenType !== 0 && (
-            <>
-              <Title>
-                {data && data.metadata && data.metadata.name
-                  ? data.metadata.name
-                  : order.title}
-              </Title>
-              <Description>
-                {data && data.metadata && data.metadata.description}
-              </Description>
-            </>
-          )}
+            <div
+              style={{ display: "flex", flexDirection: "row", marginTop: "1rem" }}
+            >
+              <Info link={`?chain=${order.chainId}&address=${order.baseAssetAddress}`} name={"Collection"} value={collectionInfo && collectionInfo.title ? collectionInfo.title : shortAddress(order.baseAssetAddress)} />
+              <Info name={"Status"} value={status ? "Sold" : "New"} />
 
-          {order.baseAssetTokenType === 0 && (
-            <>
-              <Title>
-                {resolveTokenValue({
-                  assetAddress: order.baseAssetAddress,
-                  tokenId: order.baseAssetTokenIdOrAmount,
-                  chainId: order.chainId,
-                })}
-                {` `}For Sell
-              </Title>
-            </>
-          )}
+            </div>
 
-          <div
-            style={{ display: "flex", flexDirection: "row", marginTop: "1rem" }}
-          >
-            <Info link={`?chain=${order.chainId}&address=${order.baseAssetAddress}`} name={"Collection"} value={collectionInfo && collectionInfo.title ? collectionInfo.title : shortAddress(order.baseAssetAddress)} />
-            <Info name={"Status"} value={status ? "Sold" : "New"} />
+            <hr />
 
-          </div>
+            <PairAssetList
+              id={id}
+              account={account}
+              library={library}
+              data={data}
+              increaseTick={increaseTick}
+              tick={tick}
+              items={items}
+              order={order}
+            />
 
-          <hr />
-
-          <PairAssetList
-            id={id}
-            account={account}
-            library={library}
-            data={data}
-            increaseTick={increaseTick}
-            tick={tick}
-            items={items}
-            order={order}
-          />
-
-          <hr />
-          <Tabs style={{ marginTop: "1rem" }}>
-            <TabList>
-              <Tab>
-                Information
-              </Tab>
-              <Tab>
-                Attributes ({data && data.metadata.attributes && data.metadata.attributes.length || 0})
-              </Tab>
-            </TabList>
-            <TabPanel>
-              <Attributes>
-                <AttributeItem>
-                  <div>
-                    Contract Addresss
-                  </div>
-                  <div>
-                    <a  rel="noreferrer" target="_blank" href={resolveBlockexplorerLink(order.chainId, order.baseAssetAddress)}>
-                      {shortAddress(order.baseAssetAddress)}
-                    </a>
-                  </div>
-                </AttributeItem>
-                <AttributeItem>
-                  <div>
-                    Token ID
-                  </div>
-                  <div>
-                    #{shorterName(order.baseAssetTokenIdOrAmount)}
-                  </div>
-                </AttributeItem>
-                <AttributeItem>
-                  <div>
-                    Token Standard
-                  </div>
-                  <div>
-                    {order.baseAssetTokenType === 0 ? "ERC-20" : order.baseAssetTokenType === 1 ? "ERC-721" : "ERC-1155"}
-                  </div>
-                </AttributeItem>
-                <AttributeItem>
-                  <div>
-                    Blockchain
-                  </div>
-                  <div>
-                    {resolveNetworkName(order.chainId)}
-                  </div>
-                </AttributeItem>
-                <AttributeItem>
-                  <div>
-                    Added
-                  </div>
-                  <div>
-                    {new Date(Number(order.timestamp) * 1000).toLocaleDateString()}
-                  </div>
-                </AttributeItem>
-              </Attributes>
-            </TabPanel>
-            <TabPanel>
-              <Flex flexWrap='wrap' style={{ marginBottom: "3rem" }}>
-                {data && data.metadata && data.metadata.attributes && data.metadata.attributes.map((item, index) => {
-                  return (
-                    <Box
-                      width={[1 / 3]}
-                      p={1}>
-                      <div style={{ border: "1px solid white", height: "80px", borderRadius: "8px", padding: "15px", fontSize: "14px" }}>
-                        <h5 style={{ fontSize: "18px", padding: "0px", margin: "0px", marginBottom: "5px" }}>{item.trait_type || "Key"}</h5>
-                        <b>{item.value || "Value"}</b>
-                      </div>
-                    </Box>
-                  )
-                })}
-              </Flex>
-            </TabPanel>
-          </Tabs>
-        </Box>
-      </Flex>
-    </Container>
+            <hr />
+            <Tabs style={{ marginTop: "1rem" }}>
+              <TabList>
+                <Tab>
+                  Information
+                </Tab>
+                <Tab>
+                  Attributes ({data && data.metadata.attributes && data.metadata.attributes.length || 0})
+                </Tab>
+              </TabList>
+              <TabPanel>
+                <Attributes>
+                  <AttributeItem>
+                    <div>
+                      Contract Addresss
+                    </div>
+                    <div>
+                      <a rel="noreferrer" target="_blank" href={resolveBlockexplorerLink(order.chainId, order.baseAssetAddress)}>
+                        {shortAddress(order.baseAssetAddress)}
+                      </a>
+                    </div>
+                  </AttributeItem>
+                  <AttributeItem>
+                    <div>
+                      Token ID
+                    </div>
+                    <div>
+                      #{shorterName(order.baseAssetTokenIdOrAmount)}
+                    </div>
+                  </AttributeItem>
+                  <AttributeItem>
+                    <div>
+                      Token Standard
+                    </div>
+                    <div>
+                      {order.baseAssetTokenType === 0 ? "ERC-20" : order.baseAssetTokenType === 1 ? "ERC-721" : "ERC-1155"}
+                    </div>
+                  </AttributeItem>
+                  <AttributeItem>
+                    <div>
+                      Blockchain
+                    </div>
+                    <div>
+                      {resolveNetworkName(order.chainId)}
+                    </div>
+                  </AttributeItem>
+                  <AttributeItem>
+                    <div>
+                      Added
+                    </div>
+                    <div>
+                      {new Date(Number(order.timestamp) * 1000).toLocaleDateString()}
+                    </div>
+                  </AttributeItem>
+                </Attributes>
+              </TabPanel>
+              <TabPanel>
+                <Flex flexWrap='wrap' style={{ marginBottom: "3rem" }}>
+                  {data && data.metadata && data.metadata.attributes && data.metadata.attributes.map((item, index) => {
+                    return (
+                      <Box
+                        width={[1 / 3]}
+                        p={1}>
+                        <div style={{ border: "1px solid white", height: "80px", borderRadius: "8px", padding: "15px", fontSize: "14px" }}>
+                          <h5 style={{ fontSize: "18px", padding: "0px", margin: "0px", marginBottom: "5px" }}>{item.trait_type || "Key"}</h5>
+                          <b>{item.value || "Value"}</b>
+                        </div>
+                      </Box>
+                    )
+                  })}
+                </Flex>
+              </TabPanel>
+            </Tabs>
+          </Box>
+        </Flex>
+      </Container>
+    </>
   )
 }
 

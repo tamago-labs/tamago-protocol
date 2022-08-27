@@ -11,6 +11,12 @@ const nextConfig = {
     MORALIS_MAINNET_APP_ID : process.env.MORALIS_MAINNET_APP_ID,
     MORALIS_MAINNET_MASTER_KEY : process.env.MORALIS_MAINNET_MASTER_KEY,
     NFT_STORAGE_TOKEN : process.env.NFT_STORAGE_TOKEN,
+    NETWORK : process.env.NETWORK
+  },
+  experimental: {
+    images: {
+      unoptimized: true,
+    }
   },
   eslint: {
     // Warning: This allows production builds to successfully complete even if

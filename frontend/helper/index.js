@@ -1,6 +1,7 @@
 
 import { SUPPORT_CHAINS } from "../constants";
 import { ethers } from "ethers";
+import { NETWORK } from "../config/network"
 
 export const shortAddress = (address, first = 6, last = -4) => {
   return `${address.slice(0, first)}...${address.slice(last)}`
@@ -105,10 +106,10 @@ export const getProviders = () => {
       url = "https://nd-643-057-168.p2pify.com/2ffe10d04df48d14f0e9ff6e0409f649"
     } else if (chainId === 80001) {
       url = "https://rpc-mumbai.maticvigil.com"
-    } else if (chainId === 97) { 
+    } else if (chainId === 97) {
       url = getRandomItem(["https://data-seed-prebsc-1-s1.binance.org:8545", "https://data-seed-prebsc-2-s1.binance.org:8545", "https://data-seed-prebsc-1-s3.binance.org:8545", "https://data-seed-prebsc-2-s3.binance.org:8545"])
     } else if (chainId === 56) {
-      url = getRandomItem(["https://bsc-dataseed1.binance.org","https://bsc-dataseed2.binance.org" ,"https://bsc-dataseed3.binance.org", "https://bsc-dataseed4.binance.org"])
+      url = getRandomItem(["https://bsc-dataseed1.binance.org", "https://bsc-dataseed2.binance.org", "https://bsc-dataseed3.binance.org", "https://bsc-dataseed4.binance.org"])
     } else if (chainId === 43113) {
       url = "https://nd-473-270-876.p2pify.com/613a7805f3d64a52349b6ca19b6e27a7/ext/bc/C/rpc"
     } else if (chainId === 43114) {
@@ -139,3 +140,7 @@ export const shorterText = (name) => {
   return name.length > 150 ? `${name.slice(0, 150)}...` : name
 }
 
+export const getIcon = (chainId) => {
+  const network = NETWORK.find(item => parseInt(chainId) === parseInt(item.chainId, 16))
+  return network ? network.icon : "https://cdn-icons-png.flaticon.com/512/545/545685.png"
+}

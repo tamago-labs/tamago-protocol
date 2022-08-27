@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import Orders from "./orders"
-import Orders2 from "./orders2"
+import Orders from "./orders" 
+import Collections from "./collections"
 
 const StyledContainer = styled.div`
     padding-bottom: 3rem;
@@ -9,8 +9,8 @@ const StyledContainer = styled.div`
 const Home = () => {
     return (
         <StyledContainer>
-            {/* <Orders /> */}
-            <Orders2/>
+            <Collections/>
+            <Orders />
         </StyledContainer>
     )
 }

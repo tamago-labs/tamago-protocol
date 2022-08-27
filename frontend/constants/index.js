@@ -2,6 +2,8 @@ export const MORALIS_URL = process.env.MORALIS_MAINNET_SERVER_URL;
 export const MORALIS_ID = process.env.MORALIS_MAINNET_APP_ID;
 export const NFT_STORAGE_TOKEN = process.env.NFT_STORAGE_TOKEN
 
+// export const IS_MAINNET = process.env.NETWORK === "MAINNET" ? true : false
+
 export const SUPPORT_CHAINS = [42, 97, 80001, 43113, 137, 56, 43114, 1, 25];
 
 export const MAINNET_CHAINS = [137, 56, 43114, 1, 25];

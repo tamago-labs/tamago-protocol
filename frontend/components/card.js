@@ -35,9 +35,6 @@ export const PreviewContainer = styled.div`
   height: 220px;
   overflow: visible;
   position: relative;
-
-
-
 `;
 
 const Image = styled.img`
@@ -47,7 +44,6 @@ const Image = styled.img`
   width: 100%;
   height: 220px;
   border-radius: 20px;
-  cursor: pointer;
 `;
 
 const ChainInfo = styled.div`
@@ -87,7 +83,6 @@ const ChainInfoMini = styled.div`
   }
 `;
 
-
 const TokenValueMini = styled.div`
   position: absolute;
   toop: 0px;
@@ -106,7 +101,6 @@ const TokenValueMini = styled.div`
     color: white;
   }
 `;
-
 
 const NewRibbon = styled.div`
   position: absolute;
@@ -275,8 +269,8 @@ export const SelectableCard = ({
   onClick,
 }) => (
   <SelectableCardContainer selected={selected}>
-    <PreviewContainer style={{ cursor: "pointer" }} onClick={onClick}>
-      {image ? <Image src={image} /> : <Skeleton height="220px" />}
+    <PreviewContainer style={{ cursor: onClick && "pointer" }} onClick={onClick}>
+      {image ? <Image style={{ cursor: onClick && "pointer" }} src={image} /> : <Skeleton height="220px" />}
       {chainId && (
         <ChainInfo>
           <div>{resolveNetworkName(chainId)}</div>
@@ -308,7 +302,7 @@ export const SelectableCardCancelOrder = ({
     }
   }, [account, chainId]);
   return (
-    <SelectableCard
+    <SelectableCard 
       image={
         order.tokenType === 0
           ? "../../images/coin.png"

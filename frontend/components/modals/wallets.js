@@ -29,8 +29,6 @@ const Connector = styled.div`
     box-shadow: none;
   }
 
-  
- 
 `
 
 const CloseIcon = styled(X)`
@@ -38,16 +36,6 @@ const CloseIcon = styled(X)`
   position: absolute;
   right: 10px;
 `
-
-// const Header = styled(ModalHeader)`
-//   color: #000;
-//   position: relative;
-
-//   button {
-//     display: none;
-//   }
-// `
-
 
 function WalletsModal({ toggleWalletConnect, walletLoginVisible }) {
   const context = useWeb3React()

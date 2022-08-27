@@ -1,12 +1,15 @@
-import { useEffect, useMemo, useState } from "react"; 
+import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import Skeleton from "react-loading-skeleton";
 import useOrder from "../../hooks/useOrder";
 import NFTCard from "../nftCard";
+import { Flex, Box } from 'reflexbox'
+import { Puff } from 'react-loading-icons'
 import { Button, Button2, ToggleButton } from "../../components/button"
 import { AssetCard } from "../card";
-import { resolveBlockexplorerLink, shortAddress } from "../../helper";
+import { resolveBlockexplorerLink, resolveNetworkName, shortAddress } from "../../helper";
 import { ExternalLink, FileText, Twitter } from "react-feather"
+import { OrderCard } from "../nftCard"
 
 const ALT_COVER = "https://img.tamago.finance/bg-2.jpg"
 
@@ -34,14 +37,14 @@ const Image = styled.img`
     object-fit: cover;
 `
 
-const CollectionStatusContainer = styled.div`
+const CollectionInfoContainer = styled.div`
     position: absolute;
     height: 60px;
-    bottom: -20px;
-    left: 0px;
+    bottom: 60px; 
     width: 100%;
-    display: flex;
+    display: flex; 
 `
+
 
 const CollectionStatusCard = styled.div`
     background: white;
@@ -93,10 +96,14 @@ const Info = styled(({ className, name, value }) => {
 
 
 const Body = styled.div.attrs(() => ({}))`
-    margin-top: 3rem;
+    margin-top: 6rem;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     margin-bottom: 3rem;
+    width: 100%;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
 `
 
 const CollectionInfoCol = styled.div`
@@ -105,11 +112,11 @@ const CollectionInfoCol = styled.div`
 `
 
 const CollectionInfoCard = styled.div`
-    background: white; 
-    min-height: 300px;
+    background: white;   
+    width: 100%;
+    text-align: left;
 
-    border-radius: 6px;
-    padding: 16px; 
+    border-radius: 6px; 
     color: black;
     line-height: 18px;
     display: flex;
@@ -120,8 +127,7 @@ const CollectionInfoCard = styled.div`
         font-size: 24px;
         padding: 0px;
         margin: 0px;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        padding-top: 10px; 
     }
     p {
         font-size: 14px;
@@ -139,6 +145,19 @@ const CollectionOrderCol = styled.div`
     flex: 9;
 `
 
+const ButtonGroup = styled.div`
+  display: flex;   
+  flex-wrap: wrap;
+
+  button {
+      
+      margin-top: 10px;
+      :not(:first-child) {
+          margin-left: 10px;
+      }
+  }
+`;
+
 const Address = styled.div`
     font-size: 14px;
     a {
@@ -150,6 +169,9 @@ const Address = styled.div`
 const Icons = styled.div`
     display: flex;
     flex-direction: row;
+    justify-content: right;
+    padding-right: 10px;
+    padding-top: 5px;
     height: 30px; 
 `
 
@@ -172,7 +194,25 @@ const Icon = styled.div`
 
 `
 
-const MAX_ITEMS = 10;
+const Title = styled(Box).attrs(() => ({ width: [1, 1 / 4] }))`
+    font-size: 22px;
+    font-weight: 600; 
+    padding-top: 10px;
+`
+
+const Selector = styled(Box).attrs(() => ({ width: [1, 3 / 4] }))`
+    font-size: 14px;
+    display: flex;
+    flex-direction: row; 
+    justify-content: flex-end;
+    align-items : flex-end; 
+`
+
+const Switcher = styled(Flex).attrs(() => ({ flexWrap: "wrap" }))`
+    padding: 10px;
+`
+
+const MAX_ITEMS = 5;
 
 const Collection = ({
     address,
@@ -181,10 +221,10 @@ const Collection = ({
 
     const [max, setMax] = useState(MAX_ITEMS);
 
-    const { getOrdersFromCollection, getCollectionInfo, getFloorPrice, getCollectionOwners } = useOrder()
+    const { getOrdersFromCollection, getCollectionInfo, getCollectionOwners } = useOrder()
     const [orders, setOrders] = useState([])
     const [info, setInfo] = useState()
-    const [floorPrice, setFloorPrice] = useState()
+    const [isListed, setIsListed] = useState(true)
     const [owners, setOwners] = useState()
 
     useEffect(() => {
@@ -193,11 +233,36 @@ const Collection = ({
             setMax(MAX_ITEMS)
             getOrdersFromCollection(Number(chain), address).then(setOrders)
             getCollectionInfo(address, Number(chain)).then(setInfo)
-            getFloorPrice(address, Number(chain)).then(setFloorPrice)
-
         }
 
     }, [chain, address])
+
+    useEffect(() => {
+
+        if (isListed) {
+            setMax(MAX_ITEMS)
+        }
+
+    }, [isListed])
+
+    const filtered = useMemo(() => {
+
+        if (isListed) {
+            return orders
+        } else {
+            const existingTokens = orders.map(item => item.tokenId)
+            return info && info.tokens ? info.tokens.filter(item => !existingTokens.includes(item)).map((item) => {
+                return {
+                    assetAddress: address,
+                    chainId: chain,
+                    tokenId: item
+                }
+            }) : []
+        }
+
+    }, [isListed, orders, info, chain, address])
+
+
 
     return (
         <Container>
@@ -205,97 +270,111 @@ const Collection = ({
                 <Cover>
                     <Image src={info && info.cover ? info.cover : ALT_COVER} />
                 </Cover>
-                <CollectionStatusContainer>
-                    <CollectionStatusCard>
-                        <Info
-                            name="Items"
-                            value={info && info.totalSupply}
-                        />
-                        <Info
-                            name="Owners"
-                            value={info && info.totalOwners}
-                        />
-                        <Info
-                            name="Listing"
-                            value={orders ? orders.length : null}
-                        /> 
-                        <Info
-                            name="Floor Price"
-                            value={info && info.lowestPrice ? `$${Number(info.lowestPrice).toLocaleString()}` : null}
-                        />
-                    </CollectionStatusCard>
-                </CollectionStatusContainer>
+                <CollectionInfoContainer>
+                    <Flex style={{ width: "100%", maxWidth: "1000px", marginLeft: "auto", marginRight: "auto" }} flexWrap={"wrap"}>
+                        <Box width={[1, 9 / 12]} >
+                            <CollectionInfoCard>
+                                <div style={{ display: "flex", flexDirection: "row" }}>
+                                    <div style={{ flex: 1 }}>
+                                        <h5>{info && info.title ? info.title : <Skeleton />}</h5>
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        {info && (
+                                            <>
+                                                <Icons>
+                                                    <Icon>
+                                                        <a rel="noreferrer" target="_blank" href={resolveBlockexplorerLink(Number(chain), address)}>
+                                                            <FileText size={16} />
+                                                        </a>
+                                                    </Icon>
+                                                    {info.links && info.links.website && (
+                                                        <Icon>
+                                                            <a rel="noreferrer" target="_blank" href={info.links.website}>
+                                                                <ExternalLink style={{ margin: "auto" }} size={16} />
+                                                            </a>
+                                                        </Icon>
+                                                    )}
+                                                    {info.links && info.links.twitterLink && (
+                                                        <Icon>
+                                                            <a rel="noreferrer" target="_blank" href={info.links.twitterLink}>
+                                                                <Twitter size={16} />
+                                                            </a>
+                                                        </Icon>
+                                                    )}
+                                                </Icons>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                                <p>{info && info.description ? info.description : <Skeleton />}</p>
+                                <div>
+                                    <Info
+                                        name="Chain"
+                                        value={resolveNetworkName(Number(chain))}
+                                    />
+                                    <Info
+                                        name="Items"
+                                        value={info && info.totalSupply}
+                                    />
+                                    <Info
+                                        name="Owners"
+                                        value={info && info.totalOwners}
+                                    />
+                                    <Info
+                                        name="Listing"
+                                        value={orders ? orders.length : null}
+                                    />
+                                </div>
+                            </CollectionInfoCard>
+                        </Box>
+                        {/* <Box width={[1, 3 / 12]}>
+                            RIGHT
+                        </Box> */}
+                    </Flex>
+                </CollectionInfoContainer>
             </Header>
             <Body>
-                <CollectionInfoCol>
-                    <CollectionInfoCard>
-                        <h5>{info && info.title ? info.title : <Skeleton />}</h5>
-                        {info && (
+                <Switcher>
+                    <Title>
+                        Items
+                    </Title>
+                    <Selector>
+                        <ButtonGroup>
                             <>
-                                <Icons>
-                                    <Icon>
-                                        <a  rel="noreferrer" target="_blank" href={resolveBlockexplorerLink(Number(chain), address)}>
-                                            <FileText size={16} />
-                                        </a>
-                                    </Icon>
-                                    {info.links && info.links.website && (
-                                        <Icon>
-                                            <a  rel="noreferrer" target="_blank" href={info.links.website}>
-                                                <ExternalLink style={{ margin: "auto" }} size={16} />
-                                            </a>
-                                        </Icon>
-                                    )}
-                                    {info.links && info.links.twitterLink && (
-                                        <Icon>
-                                            <a  rel="noreferrer" target="_blank" href={info.links.twitterLink}>
-                                                <Twitter size={16} />
-                                            </a>
-                                        </Icon>
-                                    )}
-                                </Icons> 
+                                <ToggleButton onClick={() => setIsListed(true)} active={isListed}>
+                                    Listed
+                                </ToggleButton>
+                                <ToggleButton onClick={() => setIsListed(false)} active={!isListed}>
+                                    Unlisted
+                                </ToggleButton>
                             </>
-                        )}
-                        <p>{info && info.description ? info.description : <Skeleton />}</p>
-                    </CollectionInfoCard>
-                </CollectionInfoCol>
-                <CollectionOrderCol>
-                    <OrdersPanel>
+                        </ButtonGroup>
+                    </Selector>
+                </Switcher>
+                <>
 
-                        {(!orders || orders.length === 0) && <AssetCard />}
+                    {filtered.length === 0 &&
+                        <div style={{ textAlign: "center", padding: "3rem", display: "flex", flexDirection: "row" }}>
+                            <div style={{ margin: "auto", display: "flex", flexDirection: "row" }}>
+                                <Puff height="24px" />{` `}<div>Loading...</div>
+                            </div>
+                        </div>
+                    }
 
-                        {(orders.length > 0) &&
-                            orders.map((order, index) => {
-                                if (index > max - 1) {
-                                    return;
-                                }
-                                const lowest = floorPrice && floorPrice.items && floorPrice.items.reduce((value, item) => {
-                                    if (item.cid === order.cid) {
-                                        if (value) {
-                                            if (value > item.value) {
-                                                value = item.value
-                                            }
-                                        } else {
-                                            value = item.value
-                                        }
-                                    }
-                                    return value
-                                }, null)
-
-                                return (
-                                    <NFTCard key={index} delay={index % MAX_ITEMS} order={order}>
-                                        <p style={{ color: "black", fontSize: "12px", textAlign: "center" }}>
-                                            {lowest && `$${(Number(lowest)).toLocaleString()}`}
-                                        </p>
-                                    </NFTCard>
-                                );
-                            })}
-                    </OrdersPanel>
+                    {(filtered.length > 0) &&
+                        filtered.map((order, index) => {
+                            if (index > max - 1) {
+                                return;
+                            }
+                            return (
+                                <OrderCard key={index} delay={index % MAX_ITEMS} order={order} />);
+                        })}
                     <div style={{ padding: "20px", marginTop: "1rem", textAlign: "center" }}>
-                        {orders.length > max && (
-                            <Button onClick={() => setMax(max + 5)}>View More Items...</Button>
+                        {filtered.length > max && (
+                            <Button style={{ marginLeft: "auto", marginRight: "auto" }} onClick={() => setMax(max + 5)}>View More Items...</Button>
                         )}
                     </div>
-                </CollectionOrderCol>
+                </>
             </Body>
         </Container>
     )

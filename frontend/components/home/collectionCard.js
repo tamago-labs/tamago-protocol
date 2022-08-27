@@ -18,7 +18,7 @@ const Info = styled(({ className, name, value }) => {
     display: inline-block;
     text-align: left;
     height: 50px;
-    min-width: 80px;
+    min-width: 90px;
     margin-top: auto;
     margin-bottom: auto; 
     flex-grow: 1;
@@ -41,7 +41,7 @@ const Info = styled(({ className, name, value }) => {
 
 const Card = styled.div`
     background: white; 
-    height: 300px;
+    height: 180px;
     overflow: hidden;
     border-radius: 6px;
     color: black;
@@ -57,7 +57,7 @@ const Card = styled.div`
 
 const CardCover = styled.div`
     position: absolute;
-    height: 120px;
+    height: 80px;
     top: 0px;
     left: 0px;
     width: 100%;
@@ -67,17 +67,20 @@ const CardCover = styled.div`
 const CardBody = styled.div`
     position: absolute;
     height: 280px;
-    top: 120px;
+    top: 70px;
     left: 0px;
     width: 100%;
     padding: 10px;
     h5 {
-        font-size: 16px;
+        font-size: 18px;
         padding: 0px;
         margin: 0px;
         margin-top: 10px;
+        padding: 0px;
+        margin-bottom: 10px;
     }
     p {
+        padding: 0px;
         font-size: 14px;
         line-height: 18px;
     }
@@ -85,84 +88,50 @@ const CardBody = styled.div`
 
 const Image = styled.img`
     width: 100%;
-    height: 120px;
+    height: 80px;
     object-fit: cover;
 `
 
 const ALT_COVER = "https://img.tamago.finance/bg-2.jpg"
 
-const Collection = ({ orders, collection, delay }) => {
-
-    const firstRow = orders && orders[0]
+const Collection = ({ data, collection, delay }) => {
 
     const { getCollectionInfo, getFloorPrice, getCollectionOwners } = useOrder()
     const [info, setInfo] = useState()
     const [floorPrice, setFloorPrice] = useState()
     const [owners, setOwners] = useState()
 
-    const address = firstRow && firstRow.assetAddress
-    const chain = firstRow && (firstRow.chainId)
-
-    const tokenSymbol = useMemo(() => {
-        if (firstRow && firstRow.tokenType === 0) {
-            const token = ERC20_TOKENS.find(item => (item.contractAddress.toLowerCase() === firstRow.assetAddress.toLowerCase()) && (item.chainId === firstRow.chainId))
-            return token && token.symbol
-        }
-        return
-    }, [firstRow])
-
     useEffect(() => {
-        setTimeout(() => {
-            if (firstRow && firstRow.assetAddress) {
-                getFloorPrice(firstRow.assetAddress, firstRow.chainId).then(setFloorPrice);
-            }
-
-        }, delay * 1000);
-    }, [firstRow, delay]);
-
-    if (orders.length === 0) {
-        return (
-            <Skeleton
-                height={300}
-            />
-        )
-    }
+        if (data) {
+            getCollectionInfo(data.assetAddress, Number(data.chainId)).then(setInfo)
+        }
+    }, [data]);
 
     return (
-        <Link href={`/collection?chain=${chain}&address=${address}`}>
+        <Link href={data && data.chainId && data.assetAddress ? `/collection?chain=${data.chainId}&address=${data.assetAddress}` : "/"}>
             <Card>
                 <CardCover>
-                    <Image src={collection && collection.cover ? collection.cover : ALT_COVER} />
+                    <Image src={data && data.cover ? data.cover : ALT_COVER} />
                 </CardCover>
+
                 <CardBody>
-                    <h5>{tokenSymbol ? tokenSymbol : collection && collection.title ? collection.title : shortAddress(address)}</h5>
-                    <p>
-                        {collection && collection.description ? shorterText(collection.description) : ""}
-                    </p>
+                    <h5>{data && data.title ? data.title : shortAddress(data.assetAddress)}</h5>
+                     <Info
+                        name="Chain"
+                        value={resolveNetworkName(data.chainId)}
+                    />
                     <Info
                         name="Items"
-                        value={collection && collection.totalSupply}
+                        value={info && info.totalSupply}
                     />
                     <Info
                         name="Owners"
-                        value={collection && collection.totalOwners}
+                        value={info && info.totalOwners}
                     />
                     <Info
                         name="Listing"
-                        value={orders.length}
-                    />
-                    {/* <Info
-                        name="Total Volume"
-                        value={null}
-                    /> */}
-                    {/* <Info
-                        name="Floor Price"
-                        value={floorPrice ? `$${Number(floorPrice.all).toLocaleString()}` : null}
-                    /> */}
-                    <Info
-                        name="Floor Price"
-                        value={collection && collection.lowestPrice ? `$${Number(collection.lowestPrice).toLocaleString()}` : null}
-                    />
+                        value={info && info.totalOrders}
+                    /> 
                 </CardBody>
             </Card>
         </Link>
