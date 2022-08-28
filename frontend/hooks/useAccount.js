@@ -47,7 +47,7 @@ const Provider = ({ children }) => {
     const accountContext = useMemo(
         () => ({ 
             updateNetwork,
-            isMainnet
+            isMainnet : process.env.NETWORK === "MAINNET" ? true : false
         }),
         [updateNetwork, isMainnet]
     );

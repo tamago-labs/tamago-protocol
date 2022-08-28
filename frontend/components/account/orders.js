@@ -128,6 +128,7 @@ const ButtonsRow = styled.div`
 `
 
 const Orders = () => {
+  const [checking, setChecking] = useState(true);
   const [loading, setLoading] = useState(false);
   const [orders, setOrders] = useState([]);
   const [tick, setTick] = useState(0);
@@ -142,9 +143,14 @@ const Orders = () => {
       account &&
       getOrdersFromAccount(chainId, account).then(
         (orders) => {
+           
           setOrders(orders)
         }
-      );
+      ).finally(
+        () => { 
+          setChecking(false)
+        }
+      )
   }, [account, chainId]);
 
   useEffect(() => {
@@ -188,8 +194,9 @@ const Orders = () => {
       } catch (e) {
         console.log(e);
       } finally {
+         setCancelData([])
         getOrdersFromAccount(chainId, account).then(setOrders);
-        setLoading(false);
+        setLoading(false); 
         setTick(tick + 1);
       }
     },
@@ -214,7 +221,7 @@ const Orders = () => {
 
   return (
     <Wrapper>
-      <h2>Opened Orders ({orders.length})</h2>
+      <h2>Opened Orders ({orders.length})</h2> 
       <hr />
 
       <Disclaimer>
@@ -242,7 +249,7 @@ const Orders = () => {
         </div>
       </Disclaimer>
       <OrdersPanel>
-        {(!orders || orders.length === 0) && <LoadingIndicator />}
+        {(checking) && <LoadingIndicator />}
         {orders.length > 0 &&
           orders.map((order, index) => {
             return (

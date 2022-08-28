@@ -175,14 +175,14 @@ const Header = () => {
                             />
                         </div>
                     </Link>
-                    <div style={{ marginTop: "auto", marginBottom: "auto", display: "flex", flexDirection: "row" }}>
+                    {/* <div style={{ marginTop: "auto", marginBottom: "auto", display: "flex", flexDirection: "row" }}>
                         <ToggleButton active={isMainnet} onClick={() => updateNetwork(true)}>
                             Mainnet
                         </ToggleButton>
                         <ToggleButton style={{ marginLeft: "5px" }} active={!isMainnet} onClick={() => updateNetwork(false)}>
                             Testnet
                         </ToggleButton>
-                    </div>
+                    </div> */}
                 </Brand>
                 <Menu>
                     {/* <Link href="/launchpad">
@@ -199,10 +199,16 @@ const Header = () => {
                         <Link href="/faucet">
                             Faucet
                         </Link>
-                    } 
+                    }
+                    <>
                         <Link href="/sell">
                             Sell
-                        </Link> 
+                        </Link>
+                        <Link href="https://testnet.tamagonft.xyz">
+                            Testnet
+                        </Link>
+                    </>
+
                     {/* {account && (
                         <>
                             <Link href="/account">
@@ -223,7 +229,7 @@ const Header = () => {
                         {account &&
                             (
                                 <div style={{ display: "flex", flexDirection: "row" }}>
-                                     
+
                                     <NetworkBadge
                                         chainId={chainId}
                                         toggleSwitchChain={toggleSwitchChain}
