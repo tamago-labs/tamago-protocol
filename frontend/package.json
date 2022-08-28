@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@rebass/forms": "^4.0.6",
     "@types/react-modal": "^3.13.1",
     "@types/reflexbox": "^4.0.5",
     "@web3-react/core": "^6.1.9",

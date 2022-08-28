@@ -298,7 +298,7 @@ const Confirm = ({
       <PreviewContainer>
         <PreviewFrom>
           <div>
-            {fromTokens.map((token, index) => {
+            {fromTokens.map((token, index) => { 
               return (
                 <CommonCard
                   key={index}
@@ -325,7 +325,7 @@ const Confirm = ({
                 </CommonCard>
               );
             })}
-            {fromData.map((nft, index) => {
+            {fromData.map((nft, index) => { 
               return (
                 <CommonCard
                   key={index}
@@ -333,8 +333,7 @@ const Confirm = ({
                   chainId={nft && Number(nft.chainId)}
                 >
                   <div className="name">
-                    {nft.name}
-                    {` `}#{shorterName(nft.assetTokenIdOrAmount)}
+                    {nft.metadata.name} 
                   </div>
                 </CommonCard>
               );

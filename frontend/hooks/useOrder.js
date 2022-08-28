@@ -367,7 +367,7 @@ const useOrder = () => {
       // text/plain;UTF-8
       const blob = new Blob([str]);
       const cid = await client.storeBlob(blob);
-
+      
 
       return {
         orderId: cid,

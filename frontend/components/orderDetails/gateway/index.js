@@ -141,7 +141,7 @@ const MultichainOrderDetails = ({ cid }) => {
 
   return (
     <>
-      <Alert>Be aware that the cross-chain swaps is on the experiment phase</Alert>
+      <div style={{ width: "100%", textAlign : "center", borderRadius: "6px" ,padding: "5px 10px" , marginLeft: "auto", marginRight: "auto", maxWidth: "1300px", border: "1px solid white" }}>Be aware that the cross-chain swaps is on the experiment phase</div>
       <Container>
         <Flex flexWrap='wrap'>
           <Box

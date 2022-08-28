@@ -11,7 +11,6 @@ import { AccountContext } from "../../hooks/useAccount";
 import Container from "../container";
 import { ToggleButton } from "../button";
 import CollectionCard from "./collectionCard"
-import COLLECTIONS from "../../data/collections";
 import { MAINNET_CHAINS, TESTNET_CHAINS } from "../../constants";
 
 const Title = styled.div`
@@ -26,9 +25,9 @@ const CollectionCardContainer = styled.div`
     padding-top; 0px;
 `
 
-const Collections = () => {
-
-    const { isMainnet } = useContext(AccountContext)
+const Collections = ({
+    collections
+}) => {
 
     const settings = {
         dots: false,
@@ -38,10 +37,6 @@ const Collections = () => {
         slidesToScroll: 2
     };
 
-    const collections = useMemo(() => {
-        return COLLECTIONS.filter(item => isMainnet ? MAINNET_CHAINS.includes(item.chainId) : TESTNET_CHAINS.includes(item.chainId))
-    }, [isMainnet])
-
     return (
         <>
             <Container>
@@ -49,7 +44,7 @@ const Collections = () => {
                     Collections ({collections.length || 0})
                 </Title>
                 <Slider {...settings}>
-                    {collections.map((data, index) => {
+                    {collections.map((data, index) => { 
                         return (
                             <CollectionCardContainer key={index}>
                                 <CollectionCard
@@ -57,7 +52,7 @@ const Collections = () => {
                                 />
                             </CollectionCardContainer>
                         )
-                    }) }
+                    })}
 
                 </Slider>
             </Container>

@@ -199,12 +199,10 @@ const Header = () => {
                         <Link href="/faucet">
                             Faucet
                         </Link>
-                    }
-                    {isSupported && (
+                    } 
                         <Link href="/sell">
                             Sell
-                        </Link>
-                    )}
+                        </Link> 
                     {/* {account && (
                         <>
                             <Link href="/account">

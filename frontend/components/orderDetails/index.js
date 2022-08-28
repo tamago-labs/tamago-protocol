@@ -4,6 +4,7 @@ import { Briefcase } from "react-feather";
 import styled from "styled-components";
 import Skeleton from "react-loading-skeleton";
 import { Puff } from "react-loading-icons";
+import axios from "axios"
 import { useWeb3React } from "@web3-react/core";
 import { Flex, Box } from 'reflexbox'
 import useOrder from "../../hooks/useOrder";
@@ -172,6 +173,7 @@ const OrderDetails = ({
   const [status, setStatus] = useState();
   const [tick, setTick] = useState(0);
   const [collectionInfo, setCollectionInfo] = useState()
+  const [slug, setSlug ] = useState()
 
   const increaseTick = useCallback(() => {
     setTick(tick + 1);
@@ -191,6 +193,23 @@ const OrderDetails = ({
       getCollectionInfo(order.baseAssetAddress, order.chainId).then(setCollectionInfo)
     }
   }, [order]);
+
+  useEffect(() => {
+    if (order) {
+      axios.get(`https://api.tamagonft.xyz/v1/dashboard`).then(
+        ({data}) => {
+          const { collections } = data
+
+          const collection = collections.find(item => item.chainId === order.chainId && item.assetAddress === order.baseAssetAddress)
+
+          if (collection && collection.slug) {
+            setSlug(collection.slug)
+          }
+
+        }
+      )
+    } 
+  },[order])
 
   useEffect(() => {
     if (order) {
@@ -282,7 +301,7 @@ const OrderDetails = ({
             <div
               style={{ display: "flex", flexDirection: "row", marginTop: "1rem" }}
             >
-              <Info link={`?chain=${order.chainId}&address=${order.baseAssetAddress}`} name={"Collection"} value={collectionInfo && collectionInfo.title ? collectionInfo.title : shortAddress(order.baseAssetAddress)} />
+              <Info link={slug} name={"Collection"} value={collectionInfo && collectionInfo.title ? collectionInfo.title : shortAddress(order.baseAssetAddress)} />
               <Info name={"Status"} value={status ? "Sold" : "New"} />
 
             </div>

@@ -205,12 +205,12 @@ const Orders = () => {
     }
   };
 
-  useEffect(() => {
-    console.log(
-      "🚀 ~ file: orders.js ~ line 152 ~ onClickCard ~ cancelData",
-      cancelData
-    );
-  }, [cancelData]);
+  // useEffect(() => {
+  //   console.log(
+  //     "🚀 ~ file: orders.js ~ line 152 ~ onClickCard ~ cancelData",
+  //     cancelData
+  //   );
+  // }, [cancelData]);
 
   return (
     <Wrapper>

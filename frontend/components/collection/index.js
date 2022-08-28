@@ -215,24 +215,25 @@ const Switcher = styled(Flex).attrs(() => ({ flexWrap: "wrap" }))`
 const MAX_ITEMS = 5;
 
 const Collection = ({
-    address,
-    chain
+    collection
 }) => {
+
+    const chain = collection && collection.chainId
+    const address = collection && collection.assetAddress
 
     const [max, setMax] = useState(MAX_ITEMS);
 
     const { getOrdersFromCollection, getCollectionInfo, getCollectionOwners } = useOrder()
     const [orders, setOrders] = useState([])
-    const [info, setInfo] = useState()
     const [isListed, setIsListed] = useState(true)
-    const [owners, setOwners] = useState()
+    const [owners, setOwners] = useState() 
 
     useEffect(() => {
         if (chain) {
             setOrders([])
             setMax(MAX_ITEMS)
             getOrdersFromCollection(Number(chain), address).then(setOrders)
-            getCollectionInfo(address, Number(chain)).then(setInfo)
+            // getCollectionInfo(address, Number(chain)).then(setInfo)
         }
 
     }, [chain, address])
@@ -251,7 +252,7 @@ const Collection = ({
             return orders
         } else {
             const existingTokens = orders.map(item => item.tokenId)
-            return info && info.tokens ? info.tokens.filter(item => !existingTokens.includes(item)).map((item) => {
+            return collection && collection.tokens ? collection.tokens.filter(item => !existingTokens.includes(item)).map((item) => {
                 return {
                     assetAddress: address,
                     chainId: chain,
@@ -260,15 +261,13 @@ const Collection = ({
             }) : []
         }
 
-    }, [isListed, orders, info, chain, address])
-
-
+    }, [isListed, orders, collection, chain, address])
 
     return (
         <Container>
             <Header>
                 <Cover>
-                    <Image src={info && info.cover ? info.cover : ALT_COVER} />
+                    <Image src={collection && collection.cover ? collection.cover : ALT_COVER} />
                 </Cover>
                 <CollectionInfoContainer>
                     <Flex style={{ width: "100%", maxWidth: "1000px", marginLeft: "auto", marginRight: "auto" }} flexWrap={"wrap"}>
@@ -276,10 +275,10 @@ const Collection = ({
                             <CollectionInfoCard>
                                 <div style={{ display: "flex", flexDirection: "row" }}>
                                     <div style={{ flex: 1 }}>
-                                        <h5>{info && info.title ? info.title : <Skeleton />}</h5>
+                                        <h5>{collection && collection.title ? collection.title : <Skeleton />}</h5>
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                        {info && (
+                                        {collection && (
                                             <>
                                                 <Icons>
                                                     <Icon>
@@ -287,14 +286,14 @@ const Collection = ({
                                                             <FileText size={16} />
                                                         </a>
                                                     </Icon>
-                                                    {info.links && info.links.website && (
+                                                    {collection.links && collection.links.website && (
                                                         <Icon>
                                                             <a rel="noreferrer" target="_blank" href={info.links.website}>
                                                                 <ExternalLink style={{ margin: "auto" }} size={16} />
                                                             </a>
                                                         </Icon>
                                                     )}
-                                                    {info.links && info.links.twitterLink && (
+                                                    {collection.links && collection.links.twitterLink && (
                                                         <Icon>
                                                             <a rel="noreferrer" target="_blank" href={info.links.twitterLink}>
                                                                 <Twitter size={16} />
@@ -306,7 +305,7 @@ const Collection = ({
                                         )}
                                     </div>
                                 </div>
-                                <p>{info && info.description ? info.description : <Skeleton />}</p>
+                                <p>{collection && collection.description ? collection.description : <Skeleton />}</p>
                                 <div>
                                     <Info
                                         name="Chain"
@@ -314,11 +313,11 @@ const Collection = ({
                                     />
                                     <Info
                                         name="Items"
-                                        value={info && info.totalSupply}
+                                        value={collection && collection.totalSupply}
                                     />
                                     <Info
                                         name="Owners"
-                                        value={info && info.totalOwners}
+                                        value={collection && collection.totalOwners}
                                     />
                                     <Info
                                         name="Listing"

@@ -67,6 +67,16 @@ interface IAccountBase {
   children: any
 }
 
+
+const Ads = styled.div`
+  margin-top: 20px;
+  border: 1px solid white;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px;
+
+`
+
 export const AccountBase = ({ children }: IAccountBase) => {
   return (
     <Container>
@@ -94,12 +104,12 @@ export const AccountBase = ({ children }: IAccountBase) => {
                 Opened Orders
               </Link>
             </NavItem>
-            {/* <hr />
+            <hr />
             <NavItem>
               <Link href="/account/profile">
                 Creator Profile
               </Link>
-            </NavItem> */}
+            </NavItem>
             {/* <hr />
             <NavItem>
               <Link href="/account/email">
@@ -107,6 +117,11 @@ export const AccountBase = ({ children }: IAccountBase) => {
               </Link>
             </NavItem> */}
           </NavCard>
+
+          {/* <Ads>
+            With 
+          </Ads>
+           */}
         </Nav>
         <Content>
           {children}

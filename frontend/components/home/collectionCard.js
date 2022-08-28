@@ -108,14 +108,13 @@ const Collection = ({ data, collection, delay }) => {
     }, [data]);
 
     return (
-        <Link href={data && data.chainId && data.assetAddress ? `/collection?chain=${data.chainId}&address=${data.assetAddress}` : "/"}>
+        <Link href={data && data.slug  ? `/collection/${data.slug}` : "/"}>
             <Card>
                 <CardCover>
-                    <Image src={data && data.cover ? data.cover : ALT_COVER} />
+                    <Image src={info && info.cover ? info.cover : ALT_COVER} />
                 </CardCover>
-
                 <CardBody>
-                    <h5>{data && data.title ? data.title : shortAddress(data.assetAddress)}</h5>
+                    <h5>{info && info.title ? info.title : shortAddress(data.assetAddress)}</h5>
                      <Info
                         name="Chain"
                         value={resolveNetworkName(data.chainId)}

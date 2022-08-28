@@ -22,6 +22,7 @@ const Container = styled.div`
 const HeaderSection = styled.div`
    background: transparent;
    padding: 20px 40px;
+   margin-top: 20px;
    border-top: 1px solid white;
    border-bottom: 1px solid white;
    display: flex;
@@ -215,13 +216,13 @@ const CreateOrder = () => {
         result = await result.next()
         const o = result.result
         nfts = nfts.concat(o)
-        
+
         // if (count > 10) {
         //   break
         // }
         // count += 1
       }
-      
+
       const data = nfts.map((nft) => {
         let metadata = JSON.parse(nft.metadata);
 
@@ -283,14 +284,14 @@ const CreateOrder = () => {
             Sell your NFT(s) for tokens or NFTs from {resolveNetworkName(chainId)} to
           </div>
           <div style={{ display: "flex", flexDirection: "row", maxWidth: "600px", marginLeft: "auto", marginRight: "auto" }}>
-            <SelectorItem onClick={() => setSameChain(1)}>
+            <SelectorItem disabled={!account} onClick={() => account && setSameChain(1)}>
               <div style={{ margin: "auto" }}>
                 <Chain
                   chainId={chainId}
                 />
               </div>
             </SelectorItem>
-            <SelectorItem disabled={MAINNET_CHAINS.includes(chainId)} onClick={() => !isMainnet && setSameChain(2)}>
+            <SelectorItem disabled={MAINNET_CHAINS.includes(chainId) || !account} onClick={() => !isMainnet && account && setSameChain(2)}>
               <div style={{ margin: "auto" }}>
                 <Flex flexWrap="wrap">
                   {(TESTNET_CHAINS.includes(chainId) ? TESTNET_CHAINS : MAINNET_CHAINS).map((item, index) => {

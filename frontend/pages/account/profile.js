@@ -1,10 +1,13 @@
 
 import { AccountBase } from "./"
+import ProfileComponent from "../../components/account/profile"
 
 const Profile = () => {
     return (
         <AccountBase>
-            Profile
+            <ProfileComponent
+
+            />
         </AccountBase>
     )
 }
