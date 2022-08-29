@@ -1,7 +1,5 @@
 # Tamago Protocol
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/09bcdd69-1e02-4920-9f39-286f62e05bca/deploy-status)](https://app.netlify.com/sites/celebrated-salmiakki-04365c/deploys)
-
 Tamago Protocol is a multi-chain P2P universal asset trading protocol powered by Filecoin/IPFS networks. It helps anyone create off-chain entries contain assets to be prices and terms and link them to the EVM-based blockchain via the Merkle tree root's hash support of ERC-20, ERC-721 and ERC-1155, after the order is set, potential buyers can check the details retrieved from IPFS and further generate a proof to swap the asset in a decentralized manner. 
 
 ### Tech Stack
@@ -92,6 +90,7 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0x93DAcb3cBCB1FE63760B47d94602Dd7F958c434C
 Gateway | 0xc3162221D51BbF9CF427a13b3d7c1f0AD0E711a9
+Ticket | 0x520e6Ca8e4C97A48457eA00B046fB831C7D872C0
 
 ### Mumbai Testnet (Chain Id : 80001)
 
@@ -99,6 +98,7 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0x334aB2599bC5ABEbAcA54C3E8aF68ee94Ad586fD
 Gateway | 0xD84cE28B4D502237c518328230c39E8A371121a5
+Ticket | 0x7D17d5903eDEdB8597c9343c94FeD74E93589e47
 
 ### Avalanche Fuji Testnet (Chain Id : 43113)
 
@@ -106,6 +106,7 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0x7D17d5903eDEdB8597c9343c94FeD74E93589e47
 Gateway | 0xbF06fEC9271B2440E8f3Be87392e2415025Cd4A9
+Ticket | 0xCeB75a9a4Af613afd42BD000893eD16fB1F0F057
 
 ### BNB Smart Chain Testnet (Chain Id : 97)
 
@@ -113,6 +114,7 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0xbF06fEC9271B2440E8f3Be87392e2415025Cd4A9
 Gateway | 0x5F7392Ec616F829Ab54092e7F167F518835Ac740
+Ticket | 0xCeB75a9a4Af613afd42BD000893eD16fB1F0F057
 
 ## License
 
