@@ -565,7 +565,7 @@ abstract contract ERC1155URIStorage is ERC1155 {
     }
 }
 
-contract Ticket is ERC1155, ERC1155URIStorage, Pausable, ReentrancyGuard {
+contract TicketMachine is ERC1155, ERC1155URIStorage, Pausable, ReentrancyGuard {
     using Address for address;
 
     enum Role {
@@ -616,7 +616,7 @@ contract Ticket is ERC1155, ERC1155URIStorage, Pausable, ReentrancyGuard {
     /// @param accounts recipient to be received
     /// @param id token ID
     /// @param value amount of the token to be minted 
-    function mintToMultipleAddresses(
+    function push(
         address[] memory accounts,
         uint256 id,
         uint256 value
@@ -630,7 +630,6 @@ contract Ticket is ERC1155, ERC1155URIStorage, Pausable, ReentrancyGuard {
 
         emit MintedMultipleAddresses(accounts, id, value);
     }
-
 
     /// @notice looks for token's owner in batch
     /// @param ids token ID(s)

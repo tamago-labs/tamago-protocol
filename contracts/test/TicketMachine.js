@@ -8,13 +8,13 @@ let alice
 let bob
 let charlie
 
-describe("ERC1155", () => {
+describe("Ticket Machine", () => {
 
     beforeEach(async () => {
 
         [admin, alice, bob, charlie] = await ethers.getSigners();
 
-        const Ticket = await ethers.getContractFactory("Ticket");
+        const Ticket = await ethers.getContractFactory("TicketMachine");
 
         ticket = await Ticket.deploy()
 
@@ -85,7 +85,7 @@ describe("ERC1155", () => {
 
         await ticket.connect(admin).issue()
 
-        await ticket.connect(admin).mintToMultipleAddresses([alice.address, bob.address, charlie.address], 1, 100)
+        await ticket.connect(admin).push([alice.address, bob.address, charlie.address], 1, 100)
 
         const balances = await ticket.balanceOfBatch([alice.address, bob.address, charlie.address], [1, 1, 1])
 

@@ -10,18 +10,29 @@ async function main() {
         })
     }
 
-    const Ticket = await hre.ethers.getContractFactory("Ticket")
+    const Ticket = await hre.ethers.getContractFactory("TicketMachine")
 
     const ticket = await Ticket.deploy()
 
     console.log("ticket deployed to:", ticket.address);
+
+    const Factory = await hre.ethers.getContractFactory("NFTFactory")
+
+    const factory = await Factory.deploy()
+
+    console.log("factory deployed to:", factory.address);
 
     await wait()
 
     await hre.run("verify:verify", {
         address: ticket.address,
         constructorArguments: [],
-      });
+    });
+
+    await hre.run("verify:verify", {
+        address: factory.address,
+        constructorArguments: [],
+    });
 
 }
 
@@ -30,5 +41,4 @@ async function main() {
 main().catch((error) => {
     console.error(error);
     process.exitCode = 1;
-  });
-  
+});
