@@ -84,21 +84,14 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0xd0B14b314B6B983889b68E6EA307BF210156A050
 
-### Kovan Testnet (Chain Id : 42)
-
-Contract Name | Contract Address 
---- | --- 
-Marketplace | 0x93DAcb3cBCB1FE63760B47d94602Dd7F958c434C
-Gateway | 0xc3162221D51BbF9CF427a13b3d7c1f0AD0E711a9
-Ticket | 0x520e6Ca8e4C97A48457eA00B046fB831C7D872C0
-
 ### Mumbai Testnet (Chain Id : 80001)
 
 Contract Name | Contract Address 
 --- | --- 
 Marketplace | 0x334aB2599bC5ABEbAcA54C3E8aF68ee94Ad586fD
 Gateway | 0xD84cE28B4D502237c518328230c39E8A371121a5
-Ticket | 0x7D17d5903eDEdB8597c9343c94FeD74E93589e47
+Ticket | 0xbF06fEC9271B2440E8f3Be87392e2415025Cd4A9
+Factory | 0x5F7392Ec616F829Ab54092e7F167F518835Ac740
 
 ### Avalanche Fuji Testnet (Chain Id : 43113)
 
@@ -106,7 +99,8 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0x7D17d5903eDEdB8597c9343c94FeD74E93589e47
 Gateway | 0xbF06fEC9271B2440E8f3Be87392e2415025Cd4A9
-Ticket | 0xCeB75a9a4Af613afd42BD000893eD16fB1F0F057
+Ticket | 0xF0b8eaEeBe416Ec43f79b0c83CCc5670d2b7C3Db
+Factory | 0xe03dFA1B78e5A25a06b67C73f32f3C8739ADba7c
 
 ### BNB Smart Chain Testnet (Chain Id : 97)
 
@@ -114,7 +108,8 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0xbF06fEC9271B2440E8f3Be87392e2415025Cd4A9
 Gateway | 0x5F7392Ec616F829Ab54092e7F167F518835Ac740
-Ticket | 0xCeB75a9a4Af613afd42BD000893eD16fB1F0F057
+Ticket | 0x3466441C38D2F76405085b730268240E4F2d0D25
+Factory | 0x772195938d86fcf500dF18563876d7Cefcf47e4D
 
 ## License
 
