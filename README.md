@@ -60,6 +60,7 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0xf2260B00250c772CB64606dBb88d9544F709308C
 Factory | 0x5eCD2Af4bc20DEebF12f332Eb4812289e3CB9c99
+Ticket | 0x505D3E62045829a133D0384f75c8fb4c856A94DB
 
 ### Ethereum (Chain id : 1)
 
@@ -73,6 +74,7 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0xC8def0BE43D35a247e03EEd09C9afBd5FC866769
 Factory | 0x5eCD2Af4bc20DEebF12f332Eb4812289e3CB9c99
+Ticket | 0x505D3E62045829a133D0384f75c8fb4c856A94DB
 
 ### Avalanche (Chain id : 43114) 
 
@@ -80,6 +82,7 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0x7D17d5903eDEdB8597c9343c94FeD74E93589e47
 Factory | 0xb1780D5F7154ce904FA3D164D9Ed63005245c2b9
+Ticket | 0xf6A61A2CfCE9F55F4eC19EeBd2750E1C627E6D13
 
 ### Polygon (Chain id : 137) 
 
