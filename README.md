@@ -90,6 +90,7 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0xd0B14b314B6B983889b68E6EA307BF210156A050
 Factory | 0x5d5b6e0af587633b41eaa89de0a60b3052a13f21
+Ticket | 0x774DCAB6C0a3e820FAd0a96125Da231685943741
 
 ### Mumbai Testnet (Chain Id : 80001)
 
