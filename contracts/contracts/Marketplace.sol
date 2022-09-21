@@ -5,9 +5,6 @@ pragma solidity 0.8.10;
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -15,17 +12,10 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "./Eligibility.sol";
 
 /**
- * @title P2P Universal Asset Marketplace (Single-Chain)
+ * @title P2P Prompt Marketplace
  */
 
-contract Marketplace is
-    ReentrancyGuard,
-    IERC721Receiver,
-    ERC721Holder,
-    ERC1155Holder,
-    Pausable,
-    Eligibility
-{
+contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
     using Address for address;
     using SafeERC20 for IERC20;
 
@@ -36,9 +26,9 @@ contract Marketplace is
 
     enum TokenType {
         ERC20,
-        ERC721,
         ERC1155,
-        ETHER
+        ETHER,
+        FIAT
     }
 
     struct Order {
@@ -53,8 +43,7 @@ contract Marketplace is
 
     // ACL
     mapping(address => Role) private permissions;
-    
-    // Fees (for ERC-20)
+    // Fees (for ERC-20 / Ether)
     uint256 public swapFee;
     // Dev address
     address public devAddress;
@@ -74,16 +63,16 @@ contract Marketplace is
 
     event OrderCanceled(string cid, address indexed owner);
     event Swapped(string cid, address indexed fromAddress);
-   
+
     constructor(uint256 _chainId) Eligibility(_chainId) {
-        maxBatchOrders = 50;
+        maxBatchOrders = 100;
 
         permissions[msg.sender] = Role.ADMIN;
 
         devAddress = msg.sender;
 
-        // set fees for ERC-20
-        // swapFee = 100; // 1%
+        // set fees for ERC-20 / Ether
+        swapFee = 300; // 3%
     }
 
     /// @notice create an order
@@ -98,7 +87,7 @@ contract Marketplace is
         uint256 _tokenId,
         TokenType _type,
         bytes32 _root
-    ) external nonReentrant whenNotPaused {
+    ) external nonReentrant {
         _create(_cid, _assetAddress, _tokenId, _type, _root);
 
         emit OrderCreated(
@@ -123,7 +112,7 @@ contract Marketplace is
         uint256[] calldata _tokenIds,
         TokenType[] calldata _types,
         bytes32[] calldata _roots
-    ) external nonReentrant whenNotPaused {
+    ) external nonReentrant {
         require(maxBatchOrders >= _cids.length, "Exceed batch size");
 
         for (uint256 i = 0; i < _cids.length; i++) {
@@ -144,12 +133,11 @@ contract Marketplace is
                 _roots[i]
             );
         }
-
     }
 
     /// @notice cancel the order
     /// @param _cid ID that want to cancel
-    function cancel(string memory _cid) external whenNotPaused nonReentrant {
+    function cancel(string memory _cid) external nonReentrant {
         _cancel(_cid);
 
         emit OrderCanceled(_cid, msg.sender);
@@ -157,16 +145,11 @@ contract Marketplace is
 
     /// @notice cancel multiple orders
     /// @param _cids ID that want to cancel
-    function cancelBatch(string[] calldata _cids)
-        external
-        whenNotPaused
-        nonReentrant
-    {
+    function cancelBatch(string[] calldata _cids) external nonReentrant {
         for (uint256 i = 0; i < _cids.length; i++) {
             _cancel(_cids[i]);
             emit OrderCanceled(_cids[i], msg.sender);
         }
-
     }
 
     /// @notice buy the NFT from the given order ID
@@ -181,7 +164,7 @@ contract Marketplace is
         uint256 _tokenIdOrAmount,
         TokenType _type,
         bytes32[] memory _proof
-    ) external validateId(_cid) whenNotPaused nonReentrant {
+    ) external validateId(_cid) nonReentrant {
         _swap(_cid, _assetAddress, _tokenIdOrAmount, _type, _proof);
 
         emit Swapped(_cid, msg.sender);
@@ -190,12 +173,30 @@ contract Marketplace is
     /// @notice buy the NFT from the given order ID with ETH
     /// @param _cid ID for the order
     /// @param _proof the proof generated from off-chain
-    function swapWithEth(
-        string memory _cid,
-        bytes32[] memory _proof
-    ) external validateId(_cid) payable whenNotPaused nonReentrant {
-
+    function swapWithEth(string memory _cid, bytes32[] memory _proof)
+        external
+        payable
+        validateId(_cid)
+        nonReentrant
+    {
         _swapWithEth(_cid, _proof);
+
+        emit Swapped(_cid, msg.sender);
+    }
+
+    /// @notice buy the NFT from the fiat (only admin can proceed)
+    /// @param _cid ID for the order
+    /// @param _assetAddress NFT or ERC20 contract address want to swap
+    /// @param _tokenIdOrAmount NFT's token ID or ERC20 token amount want to swap
+    /// @param _proof the proof generated from off-chain
+    function swapWithFiat(
+        string memory _cid,
+        address _toAddress,
+        address _assetAddress,
+        uint256 _tokenIdOrAmount,
+        bytes32[] memory _proof
+    ) external onlyAdmin validateId(_cid) nonReentrant {
+        _swapWithFiat(_cid, _toAddress, _assetAddress, _tokenIdOrAmount, _proof);
 
         emit Swapped(_cid, msg.sender);
     }
@@ -212,7 +213,7 @@ contract Marketplace is
         uint256[] calldata _tokenIdOrAmounts,
         TokenType[] calldata _types,
         bytes32[][] calldata _proofs
-    ) external validateIds(_cids) whenNotPaused nonReentrant {
+    ) external validateIds(_cids) nonReentrant {
         for (uint256 i = 0; i < _cids.length; i++) {
             _swap(
                 _cids[i],
@@ -231,10 +232,31 @@ contract Marketplace is
     function swapBatchWithEth(
         string[] calldata _cids,
         bytes32[][] calldata _proofs
-    ) external validateIds(_cids) whenNotPaused nonReentrant {
+    ) external validateIds(_cids) nonReentrant {
         for (uint256 i = 0; i < _cids.length; i++) {
-            _swapWithEth(
+            _swapWithEth(_cids[i], _proofs[i]);
+            emit Swapped(_cids[i], msg.sender);
+        }
+    }
+
+    /// @notice buy the NFT in batch from the fiat (only admin can proceed)
+    /// @param _cids ID for the order
+    /// @param _assetAddresses NFT or ERC20 contract address want to swap
+    /// @param _tokenIdOrAmounts NFT's token ID or ERC20 token amount want to swap
+    /// @param _proofs the proof generated from off-chain
+    function swapBatchWithFiat(
+        string[] calldata _cids,
+        address _toAddress,
+        address[] calldata _assetAddresses,
+        uint256[] calldata _tokenIdOrAmounts,
+        bytes32[][] calldata _proofs
+    ) external onlyAdmin validateIds(_cids) nonReentrant {
+        for (uint256 i = 0; i < _cids.length; i++) {
+            _swapWithFiat(
                 _cids[i],
+                _toAddress,
+                _assetAddresses[i],
+                _tokenIdOrAmounts[i],
                 _proofs[i]
             );
             emit Swapped(_cids[i], msg.sender);
@@ -253,16 +275,6 @@ contract Marketplace is
     function revoke(address _address) external onlyAdmin {
         require(_address != msg.sender, "You cannot revoke yourself");
         permissions[_address] = Role.UNAUTHORIZED;
-    }
-
-    // pause the contract
-    function setPaused() external onlyAdmin whenNotPaused {
-        _pause();
-    }
-
-    // unpause the contract
-    function setUnpaused() external onlyAdmin whenPaused {
-        _unpause();
     }
 
     // update swap fees
@@ -304,7 +316,10 @@ contract Marketplace is
         require(maxBatchOrders >= _orderIds.length, "Exceed batch size");
         for (uint256 i = 0; i < _orderIds.length; i++) {
             require(orders[_orderIds[i]].active == true, "Given ID is invalid");
-            require(orders[_orderIds[i]].ended == false, "The order has been fulfilled");
+            require(
+                orders[_orderIds[i]].ended == false,
+                "The order has been fulfilled"
+            );
         }
         _;
     }
@@ -340,9 +355,16 @@ contract Marketplace is
         TokenType _type,
         bytes32[] memory _proof
     ) internal {
-        require(_type != TokenType.ETHER , "ETHER is not support");
+        require(_type != TokenType.ETHER, "ETHER is not support");
+        require(_type != TokenType.FIAT, "Fiat is not support");
         require(
-            _eligibleToSwap(_orderId, _assetAddress, _tokenId,  orders[_orderId].root, _proof) == true,
+            _eligibleToSwap(
+                _orderId,
+                _assetAddress,
+                _tokenId,
+                orders[_orderId].root,
+                _proof
+            ) == true,
             "The caller is not eligible to claim the NFT"
         );
 
@@ -361,17 +383,28 @@ contract Marketplace is
         orders[_orderId].ended = true;
     }
 
-    function _swapWithEth(
-        string memory _orderId,
-        bytes32[] memory _proof
-    ) internal {
+    function _swapWithEth(string memory _orderId, bytes32[] memory _proof)
+        internal
+    {
         require(
-            _eligibleToSwapWithEth(_orderId,   orders[_orderId].root, _proof) == true,
+            _eligibleToSwapWithEth(_orderId, orders[_orderId].root, _proof) ==
+                true,
             "The caller is not eligible to claim the NFT"
         );
 
         // taking ETH
-        (bool sent, ) = orders[_orderId].owner.call{value: msg.value}("");
+
+        uint256 amount = msg.value;
+
+        // taking swap fees
+        if (swapFee != 0) {
+            uint256 fee = (amount * (swapFee)) / (10000);
+            (bool successDev, ) = orders[_orderId].owner.call{value: fee}("");
+            require(successDev, "Failed to send Ether to dev");
+            amount -= fee;
+        }
+
+        (bool sent, ) = orders[_orderId].owner.call{value: amount}("");
         require(sent, "Failed to send Ether");
 
         // giving NFT
@@ -385,7 +418,37 @@ contract Marketplace is
 
         orders[_orderId].ended = true;
     }
-    
+
+    function _swapWithFiat(
+        string memory _orderId,
+        address _toAddress,
+        address _assetAddress,
+        uint256 _tokenId,
+        bytes32[] memory _proof
+    ) internal {
+        require(
+            _eligibleToSwap(
+                _orderId,
+                _assetAddress,
+                _tokenId,
+                orders[_orderId].root,
+                _proof
+            ) == true,
+            "The caller is not eligible to claim the NFT"
+        );
+
+        // giving NFT
+        _give(
+            orders[_orderId].owner,
+            orders[_orderId].assetAddress,
+            orders[_orderId].tokenId,
+            orders[_orderId].tokenType,
+            _toAddress
+        );
+
+        orders[_orderId].ended = true;
+    }
+
     function _take(
         address _assetAddress,
         uint256 _tokenIdOrAmount,
@@ -400,28 +463,21 @@ contract Marketplace is
                 1,
                 "0x00"
             );
-        } else if (_type == TokenType.ERC721) {
-            IERC721(_assetAddress).safeTransferFrom(
-                msg.sender,
-                _to,
-                _tokenIdOrAmount
-            );
         } else if (_type == TokenType.ERC20) {
+            uint256 amount = _tokenIdOrAmount;
+
             // taking swap fees
             if (swapFee != 0) {
-                uint256 fee = (_tokenIdOrAmount * (swapFee)) / (10000);
+                uint256 fee = (amount * (swapFee)) / (10000);
                 IERC20(_assetAddress).safeTransferFrom(
                     msg.sender,
                     devAddress,
                     fee
                 );
+                amount -= fee;
             }
 
-            IERC20(_assetAddress).safeTransferFrom(
-                msg.sender,
-                _to,
-                _tokenIdOrAmount
-            );
+            IERC20(_assetAddress).safeTransferFrom(msg.sender, _to, amount);
         }
     }
 
@@ -440,33 +496,51 @@ contract Marketplace is
                 1,
                 "0x00"
             );
-        } else if (_type == TokenType.ERC721) {
-            IERC721(_assetAddress).safeTransferFrom(
-                _fromAddress,
-                _to,
-                _tokenIdOrAmount
-            );
         } else if (_type == TokenType.ETHER) {
             if (_fromAddress == address(this)) {
-               (bool success, ) = _to.call{value: _tokenIdOrAmount}("");
-                require(success, "Failed to send Ether");
+                uint256 amount = _tokenIdOrAmount;
+
+                // taking swap fees
+                if (swapFee != 0) {
+                    uint256 fee = (_tokenIdOrAmount * (swapFee)) / (10000);
+                    (bool successDev, ) = _to.call{value: fee}("");
+                    require(successDev, "Failed to send Ether to dev");
+                    amount -= fee;
+                }
+
+                (bool success, ) = _to.call{value: amount}("");
+                require(success, "Failed to send Ether to user");
             }
-        } else {
+        } else if (_type == TokenType.ERC20) {
+            uint256 amount = _tokenIdOrAmount;
+
+            if (swapFee != 0) {
+                uint256 fee = (_tokenIdOrAmount * (swapFee)) / (10000);
+                if (_fromAddress == address(this)) {
+                    IERC20(_assetAddress).safeTransfer(devAddress, fee);
+                } else {
+                    IERC20(_assetAddress).safeTransferFrom(
+                        _fromAddress,
+                        devAddress,
+                        fee
+                    );
+                }
+                amount -= fee;
+            }
+
             if (_fromAddress == address(this)) {
-                IERC20(_assetAddress).safeTransfer(
-                    msg.sender,
-                    _tokenIdOrAmount
-                );
+                IERC20(_assetAddress).safeTransfer(msg.sender, amount);
             } else {
                 IERC20(_assetAddress).safeTransferFrom(
                     _fromAddress,
                     msg.sender,
-                    _tokenIdOrAmount
+                    amount
                 );
             }
         }
     }
 
     receive() external payable {}
+
     fallback() external payable {}
 }

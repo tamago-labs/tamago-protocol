@@ -22,7 +22,7 @@ contract Eligibility
         chainId = _chainId;
     }
 
-    // check whether can do intra-chain swaps
+    // check whether can do swaps
     function eligibleToSwap(
         string memory _cid,
         address _assetAddress,
@@ -34,7 +34,6 @@ contract Eligibility
     }
 
     // INTERNAL
-
     function _eligibleToSwap(
         string memory _cid,
         address _assetAddress,
