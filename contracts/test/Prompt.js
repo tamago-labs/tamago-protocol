@@ -25,7 +25,7 @@ describe("Prompt", () => {
 
     it("Alice reserves a slot and mint NFTs to Bob", async function () {
 
-        await prompt.connect(alice).authorise("https://api.cryptokitties.co/kitties/{id}", ethers.utils.formatBytes32String(""))
+        await prompt.connect(alice).authorise("https://api.cryptokitties.co/kitties/{id}", ethers.utils.formatBytes32String(""), 100)
 
         const owner = await prompt.tokenOwners(1)
         expect(owner).to.equal(alice.address)
@@ -54,7 +54,7 @@ describe("Prompt", () => {
         const tree = new MerkleTree(leaves, keccak256, { sortPairs: true })
         const root = tree.getHexRoot()
 
-        await prompt.connect(alice).authorise("https://api.cryptokitties.co/kitties/{id}", root)
+        await prompt.connect(alice).authorise("https://api.cryptokitties.co/kitties/{id}", root, 100)
 
         const owner = await prompt.tokenOwners(1)
         expect(owner).to.equal(alice.address)
@@ -88,7 +88,7 @@ describe("Prompt", () => {
         const tree = new MerkleTree(leaves, keccak256, { sortPairs: true })
         const root = tree.getHexRoot()
         
-        await prompt.connect(alice).authorise("https://api.cryptokitties.co/kitties/{id}", root)
+        await prompt.connect(alice).authorise("https://api.cryptokitties.co/kitties/{id}", root, 100)
 
         const owner = await prompt.tokenOwners(1)
         expect(owner).to.equal(alice.address)

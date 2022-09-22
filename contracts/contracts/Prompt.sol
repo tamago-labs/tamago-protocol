@@ -672,12 +672,13 @@ contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard {
     );
 
     /// @notice authorise to issue a token
-    function authorise(string memory _tokenURI, bytes32 _root) external nonReentrant {
+    function authorise(string memory _tokenURI, bytes32 _root, uint256 _initialAmount) external nonReentrant {
+        require(_initialAmount > 0, "Initial amount must be greater than zero");
         tokenOwnerCount += 1;
         tokenOwners[tokenOwnerCount] = msg.sender;
 
         // first mint
-        _mint(msg.sender, tokenOwnerCount, 1, "");
+        _mint(msg.sender, tokenOwnerCount, _initialAmount, "");
         _setURI(tokenOwnerCount, _tokenURI);
         roots[tokenOwnerCount] = _root;
 
