@@ -12,7 +12,6 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
-
 contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     using Address for address;
 
@@ -660,7 +659,7 @@ contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard {
 
     // maps to the owner of each token ID
     mapping(uint256 => address) public tokenOwners;
-    uint256 public tokenOwnerCount; 
+    uint256 public tokenOwnerCount;
     // roots
     mapping(uint256 => bytes32) private roots;
 
@@ -672,7 +671,11 @@ contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard {
     );
 
     /// @notice authorise to issue a token
-    function authorise(string memory _tokenURI, bytes32 _root, uint256 _initialAmount) external nonReentrant {
+    function authorise(
+        string memory _tokenURI,
+        bytes32 _root,
+        uint256 _initialAmount
+    ) external nonReentrant {
         require(_initialAmount > 0, "Initial amount must be greater than zero");
         tokenOwnerCount += 1;
         tokenOwners[tokenOwnerCount] = msg.sender;
@@ -715,6 +718,28 @@ contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard {
             // bypass pre/post transfers checks
             _balances[id][accounts[i]] += value;
             emit TransferSingle(msg.sender, address(0), accounts[i], id, value);
+        }
+    }
+
+    /// @notice authorise to issue a token in batch
+    function authoriseBatch(
+        string[] memory _tokenURI,
+        bytes32[] memory _root,
+        uint256 _initialAmount
+    ) external nonReentrant {
+        require(_initialAmount > 0, "Initial amount must be greater than zero");
+        require( _tokenURI.length == _root.length , "Invalid length");
+
+        for (uint256 i = 0; i < _tokenURI.length; i++) {
+            tokenOwnerCount += 1;
+            tokenOwners[tokenOwnerCount] = msg.sender;
+
+            // first mint
+            _mint(msg.sender,tokenOwnerCount, _initialAmount, "");
+            _setURI(tokenOwnerCount, _tokenURI[i]);
+            roots[tokenOwnerCount] = _root[i];
+
+            emit Authorised(tokenOwnerCount, msg.sender);
         }
     }
 
@@ -795,15 +820,17 @@ contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard {
     /// @param _tokenId token ID
     /// @param _index index of the word
     /// @param _word word to check
-    function revealWord(bytes32[] memory _proof, uint256 _tokenId, uint256 _index, string memory _word) external view returns (bool) {
+    function revealWord(
+        bytes32[] memory _proof,
+        uint256 _tokenId,
+        uint256 _index,
+        string memory _word
+    ) external view returns (bool) {
         bool holded = false;
         if (balanceOf(msg.sender, _tokenId) > 0) {
             holded = true;
-        } 
-        bytes32 leaf = keccak256(
-            abi.encodePacked( holded , _index, _word)
-        );
+        }
+        bytes32 leaf = keccak256(abi.encodePacked(holded, _index, _word));
         return MerkleProof.verify(_proof, roots[_tokenId], leaf);
     }
-
 }
