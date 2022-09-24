@@ -55,7 +55,7 @@ describe("Marketplace contract", () => {
 
         const hexRoot = tree.getHexRoot()
 
-        await marketplace.connect(alice).create(CIDS[0], erc1155.address, 1, 1, hexRoot)
+        await marketplace.connect(alice).create(CIDS[0], erc1155.address, 1, 1, 1, hexRoot)
 
         // verify
         const firstOrder = await marketplace.orders(CIDS[0])
@@ -104,7 +104,7 @@ describe("Marketplace contract", () => {
         const root = tree.getHexRoot()
 
         // create an order and deposit ERC721 NFT
-        await marketplace.connect(alice).create(cid, erc1155.address, 1, 1, root)
+        await marketplace.connect(alice).create(cid, erc1155.address, 1, 1, 1, root)
 
         const proof = tree.getHexProof(ethers.utils.keccak256(ethers.utils.solidityPack(["string", "uint256", "address", "uint256"], [cid, 1, mockUsdc.address, toUsdc(200)])))
 
@@ -127,7 +127,7 @@ describe("Marketplace contract", () => {
 
         // validate the result
         expect(await erc1155.balanceOf(bob.address, 1)).to.equal(1)
-        expect(await mockUsdc.balanceOf(alice.address)).to.equal(toUsdc(194))
+        expect(await mockUsdc.balanceOf(alice.address)).to.equal(toUsdc(180))
 
     })
 
@@ -148,7 +148,7 @@ describe("Marketplace contract", () => {
         const root = tree.getHexRoot()
 
         // list the NFT
-        await marketplace.connect(alice).create(cid, erc1155.address, 1, 1, root)
+        await marketplace.connect(alice).create(cid, erc1155.address, 1, 1, 1, root)
 
         const proof = tree.getHexProof(ethers.utils.keccak256(ethers.utils.solidityPack(["string", "uint256", "address", "uint256"], [cid, 1, "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", toEther(0.1)])))
 
@@ -178,15 +178,66 @@ describe("Marketplace contract", () => {
         const root = tree.getHexRoot()
 
         // list the NFT
-        await marketplace.connect(alice).create(cid, erc1155.address, 1, 1, root)
+        await marketplace.connect(alice).create(cid, erc1155.address, 1, 1, 1, root)
 
         const proof = tree.getHexProof(ethers.utils.keccak256(ethers.utils.solidityPack(["string", "uint256", "address", "uint256"], [cid, 1, "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", toEther(10)])))
 
         // swap 
-        await marketplace.connect(admin).swapWithFiat(cid, bob.address , "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", toEther(10), proof)
+        await marketplace.connect(admin).swapWithFiat(cid, bob.address, "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", toEther(10), proof)
 
         // validate the result
-        expect(await erc1155.balanceOf( bob.address, 1)).to.equal(1)
+        expect(await erc1155.balanceOf(bob.address, 1)).to.equal(1)
+    })
+
+    it("LIST WITH 10 UNITS", async () => {
+        // mint ERC-1155 for Alice
+        await erc1155.mint(alice.address, 1, 10, "0x00")
+        // Prepare ERC-20 for Bob
+        await mockUsdc.connect(bob).faucet()
+
+        // make approvals
+        await erc1155.connect(alice).setApprovalForAll(marketplace.address, true)
+        await mockUsdc.connect(bob).approve(marketplace.address, ethers.constants.MaxUint256)
+
+        // make approvals
+        await erc1155.connect(alice).setApprovalForAll(marketplace.address, true)
+
+        const cid = await Hash.of("Order#1")
+
+        const leaves = [ethers.utils.keccak256(ethers.utils.solidityPack(["string", "uint256", "address", "uint256"], [cid, 1, mockUsdc.address, toUsdc(200)]))]
+
+        const tree = new MerkleTree(leaves, keccak256, { sortPairs: true })
+
+        const root = tree.getHexRoot()
+
+        // list the NFT
+        await marketplace.connect(alice).create(cid, erc1155.address, 1, 10, 1, root)
+
+        const proof = tree.getHexProof(ethers.utils.keccak256(ethers.utils.solidityPack(["string", "uint256", "address", "uint256"], [cid, 1, mockUsdc.address, toUsdc(200)])))
+
+        expect(await marketplace.connect(bob).eligibleToSwap(
+            cid,
+            mockUsdc.address,
+            toUsdc(200),
+            (await marketplace.orders(cid))['root'],
+            proof
+        )).to.true
+
+        const before = await mockUsdc.balanceOf(bob.address)
+
+        for (let i = 0; i < 10; i++) {
+            // swap 200 USDC for 1 NFT
+            await marketplace.connect(bob).swap(cid, mockUsdc.address, toUsdc(200), 0, proof)
+        }
+        
+        const after = await mockUsdc.balanceOf(bob.address)
+
+        expect(Number(fromUsdc(before)) - Number(fromUsdc(after))).to.equal(2000)
+
+        // validate the result
+        expect(await erc1155.balanceOf(bob.address, 1)).to.equal(10)
+
+
     })
 
 })
