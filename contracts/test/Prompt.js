@@ -41,6 +41,17 @@ describe("Prompt", () => {
         expect(await prompt.balanceOf(bob.address, 1)).to.equal(100)
     })
 
+    it("Batch issues", async function () {
+
+        await prompt.connect(alice).authoriseBatch( ["https://api.cryptokitties.co/kitties/{id}", "https://api.cryptokitties.co/kitties/{id}"], [ethers.utils.formatBytes32String(""), ethers.utils.formatBytes32String("")], 100)
+
+        let owner = await prompt.tokenOwners(1)
+        expect(owner).to.equal(alice.address)
+        owner = await prompt.tokenOwners(2)
+        expect(owner).to.equal(alice.address)
+
+    })
+
     it("Shuffling simple prompt and revealing by NFT holders", async function () {
 
         const originalText = "interior of a glass greenhouse, overgrown with moss and plants, hyper realism, intricate detail"
@@ -86,6 +97,7 @@ describe("Prompt", () => {
 
         const leaves = words.map((item, index) => ethers.utils.keccak256(ethers.utils.solidityPack(["bool", "uint256", "string"], [true, index, item]))) // always true, index, word
         const tree = new MerkleTree(leaves, keccak256, { sortPairs: true })
+        const hexLeaves = tree.getHexLeaves()
         const root = tree.getHexRoot()
         
         await prompt.connect(alice).authorise("https://api.cryptokitties.co/kitties/{id}", root, 100)
@@ -97,7 +109,8 @@ describe("Prompt", () => {
 
         for (let x = 0; x < orignalLength; x++) {
             for (let y = 0; y < shuffled.length; y++) {
-                const proof = tree.getHexProof(ethers.utils.keccak256(ethers.utils.solidityPack(["bool", "uint256", "string"], [true, x, shuffled[y]])))
+                const tree2 = new MerkleTree(hexLeaves, keccak256, { sortPairs: true })
+                const proof = tree2.getHexProof(ethers.utils.keccak256(ethers.utils.solidityPack(["bool", "uint256", "string"], [true, x, shuffled[y]])))
                 const output = await prompt.connect(alice).revealWord(proof, 1, x, shuffled[y])
                 if (output === true) {
                     recovered += shuffled[y]
