@@ -19,7 +19,7 @@ describe("Prompt", () => {
 
         const Prompt = await ethers.getContractFactory("Prompt");
 
-        prompt = await Prompt.deploy()
+        prompt = await Prompt.deploy(ethers.constants.AddressZero)
 
     })
 
@@ -43,13 +43,81 @@ describe("Prompt", () => {
 
     it("Batch issues", async function () {
 
-        await prompt.connect(alice).authoriseBatch( ["https://api.cryptokitties.co/kitties/{id}", "https://api.cryptokitties.co/kitties/{id}"], [ethers.utils.formatBytes32String(""), ethers.utils.formatBytes32String("")], 100)
+        await prompt.connect(alice).authoriseBatch(["https://api.cryptokitties.co/kitties/{id}", "https://api.cryptokitties.co/kitties/{id}"], [ethers.utils.formatBytes32String(""), ethers.utils.formatBytes32String("")], 100)
 
         let owner = await prompt.tokenOwners(1)
         expect(owner).to.equal(alice.address)
         owner = await prompt.tokenOwners(2)
         expect(owner).to.equal(alice.address)
 
+    })
+
+    it("Soulbound", async function () {
+
+        // assuming Charlie is WL address
+        await prompt.grant(charlie.address, 1)
+
+        await prompt.connect(alice).authorise("https://api.cryptokitties.co/kitties/{id}", ethers.utils.formatBytes32String(""), 100)
+
+        // should be blocked
+        try {
+            await prompt.connect(alice).safeTransferFrom(
+                alice.address,
+                bob.address,
+                1,
+                10,
+                "0x00"
+            );
+        } catch (e) {
+            expect((e.message).indexOf("Not allow to be transfered") !== -1).to.true
+        }
+
+        await prompt.unlock(1)
+
+        await prompt.connect(alice).safeTransferFrom(
+            alice.address,
+            bob.address,
+            1,
+            10,
+            "0x00"
+        );
+
+        await prompt.lock(1)
+
+        await prompt.grant(charlie.address, 1)
+
+        // then should be able to send to the WL address
+        await prompt.connect(alice).safeTransferFrom(
+            alice.address,
+            charlie.address,
+            1,
+            10,
+            "0x00"
+        );
+
+        // charlie can send it back to Alice
+        await prompt.connect(charlie).safeTransferFrom(
+            charlie.address,
+            alice.address,
+            1,
+            10,
+            "0x00"
+        );
+
+        expect(Number(await prompt.balanceOf(alice.address, 1))).to.equal(90)
+        expect(Number(await prompt.balanceOf(bob.address, 1))).to.equal(10)
+        expect(Number(await prompt.balanceOf(charlie.address, 1))).to.equal(0)
+    })
+
+    it("Burn", async function () {
+
+        await prompt.connect(alice).authorise("https://api.cryptokitties.co/kitties/{id}", ethers.utils.formatBytes32String(""), 100)
+
+        expect(Number(await prompt.balanceOf(alice.address, 1))).to.equal(100)
+
+        await prompt.connect(alice).burn(alice.address, 1, 100)
+
+        expect(Number(await prompt.balanceOf(alice.address, 1))).to.equal(0)
     })
 
     it("Shuffling simple prompt and revealing by NFT holders", async function () {
@@ -99,7 +167,7 @@ describe("Prompt", () => {
         const tree = new MerkleTree(leaves, keccak256, { sortPairs: true })
         const hexLeaves = tree.getHexLeaves()
         const root = tree.getHexRoot()
-        
+
         await prompt.connect(alice).authorise("https://api.cryptokitties.co/kitties/{id}", root, 100)
 
         const owner = await prompt.tokenOwners(1)
