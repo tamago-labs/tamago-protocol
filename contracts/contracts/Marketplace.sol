@@ -10,12 +10,13 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "./Eligibility.sol";
+import "@opengsn/contracts/src/BaseRelayRecipient.sol";
 
 /**
  * @title P2P Prompt Marketplace forked from Tamago P2P Marketplace
  */
 
-contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
+contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility, BaseRelayRecipient, Pausable {
     using Address for address;
     using SafeERC20 for IERC20;
 
@@ -66,16 +67,20 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
     event OrderCanceled(string cid, address indexed owner);
     event OrderEnded(string cid, address indexed owner);
     event Swapped(string cid, address indexed fromAddress, address toAddress);
+    event Withdrawn( address tokenAddress,address indexed toAddress, uint256 amount);
+    event Credited( address tokenAddress, address indexed toAddress, uint256 amount );
 
-    constructor(uint256 _chainId) Eligibility(_chainId) {
+    constructor(uint256 _chainId, address _forwarder) Eligibility(_chainId) {
         maxBatchOrders = 100;
 
-        permissions[msg.sender] = Role.ADMIN;
+        permissions[_msgSender()] = Role.ADMIN;
 
-        devAddress = msg.sender;
+        devAddress = _msgSender();
+
+        _setTrustedForwarder(_forwarder);
 
         // set fees for ERC-20 / Ether
-        swapFee = 1000; // 10%
+        swapFee = 2000; // 20%
     }
 
     /// @notice create an order
@@ -92,11 +97,11 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
         uint256 _tokenValue,
         TokenType _type,
         bytes32 _root
-    ) external nonReentrant {
+    ) external nonReentrant whenNotPaused {
         _create(_cid, _assetAddress, _tokenId, _tokenValue, _type, _root);
 
         emit OrderCreated(
-            msg.sender,
+            _msgSender(),
             _cid,
             _assetAddress,
             _tokenId,
@@ -120,7 +125,7 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
         uint256[] calldata _tokenValues,
         TokenType[] calldata _types,
         bytes32[] calldata _roots
-    ) external nonReentrant {
+    ) external nonReentrant whenNotPaused {
         require(maxBatchOrders >= _cids.length, "Exceed batch size");
 
         for (uint256 i = 0; i < _cids.length; i++) {
@@ -134,7 +139,7 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
             );
 
             emit OrderCreated(
-                msg.sender,
+                _msgSender(),
                 _cids[i],
                 _assetAddresses[i],
                 _tokenIds[i],
@@ -147,18 +152,18 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
 
     /// @notice cancel the order
     /// @param _cid ID that want to cancel
-    function cancel(string memory _cid) external nonReentrant {
+    function cancel(string memory _cid) external nonReentrant whenNotPaused {
         _cancel(_cid);
 
-        emit OrderCanceled(_cid, msg.sender);
+        emit OrderCanceled(_cid, _msgSender());
     }
 
     /// @notice cancel multiple orders
     /// @param _cids ID that want to cancel
-    function cancelBatch(string[] calldata _cids) external nonReentrant {
+    function cancelBatch(string[] calldata _cids) external nonReentrant whenNotPaused {
         for (uint256 i = 0; i < _cids.length; i++) {
             _cancel(_cids[i]);
-            emit OrderCanceled(_cids[i], msg.sender);
+            emit OrderCanceled(_cids[i], _msgSender());
         }
     }
 
@@ -174,10 +179,10 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
         uint256 _tokenIdOrAmount,
         TokenType _type,
         bytes32[] memory _proof
-    ) external validateId(_cid) nonReentrant {
+    ) external validateId(_cid) nonReentrant whenNotPaused {
         _swap(_cid, _assetAddress, _tokenIdOrAmount, _type, _proof);
 
-        emit Swapped(_cid, orders[_cid].owner , msg.sender);
+        emit Swapped(_cid, orders[_cid].owner , _msgSender());
     }
 
     /// @notice buy the NFT from the given order ID with ETH
@@ -188,10 +193,11 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
         payable
         validateId(_cid)
         nonReentrant
+        whenNotPaused
     {
         _swapWithEth(_cid, _proof);
 
-        emit Swapped(_cid, orders[_cid].owner , msg.sender);
+        emit Swapped(_cid, orders[_cid].owner , _msgSender());
     }
 
     /// @notice buy the NFT from the fiat (only admin can proceed)
@@ -208,7 +214,7 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
     ) external onlyAdmin validateId(_cid) nonReentrant {
         _swapWithFiat(_cid, _toAddress, _assetAddress, _tokenIdOrAmount, _proof);
 
-        emit Swapped(_cid, orders[_cid].owner , msg.sender);
+        emit Swapped(_cid, orders[_cid].owner , _msgSender());
     }
 
     /// @notice buy the NFT in batch
@@ -223,7 +229,7 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
         uint256[] calldata _tokenIdOrAmounts,
         TokenType[] calldata _types,
         bytes32[][] calldata _proofs
-    ) external validateIds(_cids) nonReentrant {
+    ) external validateIds(_cids) nonReentrant whenNotPaused {
         for (uint256 i = 0; i < _cids.length; i++) {
             _swap(
                 _cids[i],
@@ -232,7 +238,7 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
                 _types[i],
                 _proofs[i]
             );
-            emit Swapped(_cids[i], orders[_cids[i]].owner , msg.sender);
+            emit Swapped(_cids[i], orders[_cids[i]].owner , _msgSender());
         }
     }
 
@@ -242,10 +248,10 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
     function swapBatchWithEth(
         string[] calldata _cids,
         bytes32[][] calldata _proofs
-    ) external validateIds(_cids) nonReentrant {
+    ) external validateIds(_cids) nonReentrant whenNotPaused {
         for (uint256 i = 0; i < _cids.length; i++) {
             _swapWithEth(_cids[i], _proofs[i]);
-            emit Swapped(_cids[i], orders[_cids[i]].owner , msg.sender);
+            emit Swapped(_cids[i], orders[_cids[i]].owner , _msgSender());
         }
     }
 
@@ -269,7 +275,7 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
                 _tokenIdOrAmounts[i],
                 _proofs[i]
             );
-            emit Swapped(_cids[i], orders[_cids[i]].owner , msg.sender);
+            emit Swapped(_cids[i], orders[_cids[i]].owner , _msgSender());
         }
     }
 
@@ -277,13 +283,13 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
 
     // give a specific permission to the given address
     function grant(address _address, Role _role) external onlyAdmin {
-        require(_address != msg.sender, "You cannot grant yourself");
+        require(_address != _msgSender(), "You cannot grant yourself");
         permissions[_address] = _role;
     }
 
     // remove any permission binded to the given address
     function revoke(address _address) external onlyAdmin {
-        require(_address != msg.sender, "You cannot revoke yourself");
+        require(_address != _msgSender(), "You cannot revoke yourself");
         permissions[_address] = Role.UNAUTHORIZED;
     }
 
@@ -303,11 +309,42 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
         maxBatchOrders = _value;
     }
 
+    function setPaused(bool _paused) external onlyAdmin {
+        if (_paused) {
+            _pause();
+        } else {
+            _unpause();
+        }
+    }
+
+    // withdraw locked funds
+    function withdrawErc20(address _tokenAddress, address _toAddress, uint256 _amount)
+        external
+        nonReentrant
+        onlyAdmin
+    {
+        IERC20(_tokenAddress).safeTransfer(_toAddress, _amount);
+
+        emit Withdrawn( _tokenAddress, _toAddress, _amount );
+    }
+
+    // widthdraw ETH
+    function withdraw(address _toAddress, uint256 _amount)
+        external
+        nonReentrant
+        onlyAdmin
+    {
+        (bool sent, ) = _toAddress.call{value: _amount}("");
+        require(sent, "Failed to send Ether");
+
+        emit Withdrawn(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE, _toAddress, _amount);
+    }
+
     // INTERNAL FUNCTIONS
 
     modifier onlyAdmin() {
         require(
-            permissions[msg.sender] == Role.ADMIN,
+            permissions[_msgSender()] == Role.ADMIN,
             "Caller is not the admin"
         );
         _;
@@ -351,12 +388,12 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
         orders[_cid].tokenValue = _tokenValue;
         orders[_cid].tokenType = _type;
         orders[_cid].root = _root;
-        orders[_cid].owner = msg.sender;
+        orders[_cid].owner = _msgSender();
     }
 
     function _cancel(string memory _orderId) internal {
         require(orders[_orderId].active == true, "Given ID is invalid");
-        require(orders[_orderId].owner == msg.sender, "You are not the owner");
+        require(orders[_orderId].owner == _msgSender(), "You are not the owner");
 
         orders[_orderId].ended = true;
     }
@@ -381,7 +418,7 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
             "The caller is not eligible to claim the NFT"
         );
 
-        // taking NFT
+        // taking NFT / ERC-20
         _take(_assetAddress, _tokenId, _type, orders[_orderId].owner);
 
         // giving NFT
@@ -390,7 +427,7 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
             orders[_orderId].assetAddress,
             orders[_orderId].tokenId,
             orders[_orderId].tokenType,
-            msg.sender
+            _msgSender()
         );
 
         orders[_orderId].tokenValue -= 1;
@@ -418,13 +455,15 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
         // taking swap fees
         if (swapFee != 0) {
             uint256 fee = (amount * (swapFee)) / (10000);
-            (bool successDev, ) = orders[_orderId].owner.call{value: fee}("");
+            (bool successDev, ) = devAddress.call{value: fee}("");
             require(successDev, "Failed to send Ether to dev");
             amount -= fee;
         }
 
-        (bool sent, ) = orders[_orderId].owner.call{value: amount}("");
-        require(sent, "Failed to send Ether");
+        // lock in the contract until admin release
+        // (bool sent, ) = orders[_orderId].owner.call{value: amount}("");
+        // require(sent, "Failed to send Ether");
+        emit Credited(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE , orders[_orderId].owner, amount);
 
         // giving NFT
         _give(
@@ -432,7 +471,7 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
             orders[_orderId].assetAddress,
             orders[_orderId].tokenId,
             orders[_orderId].tokenType,
-            msg.sender
+            _msgSender()
         );
 
         orders[_orderId].tokenValue -= 1;
@@ -486,7 +525,7 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
     ) internal {
         if (_type == TokenType.ERC1155) {
             IERC1155(_assetAddress).safeTransferFrom(
-                msg.sender,
+                _msgSender(),
                 _to,
                 _tokenIdOrAmount,
                 1,
@@ -499,14 +538,16 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
             if (swapFee != 0) {
                 uint256 fee = (amount * (swapFee)) / (10000);
                 IERC20(_assetAddress).safeTransferFrom(
-                    msg.sender,
+                    _msgSender(),
                     devAddress,
                     fee
                 );
                 amount -= fee;
             }
+            // Locking in the contract until Admin releases it
+            IERC20(_assetAddress).safeTransferFrom(_msgSender(), address(this), amount);
 
-            IERC20(_assetAddress).safeTransferFrom(msg.sender, _to, amount);
+            emit Credited(_assetAddress, _to, amount);
         }
     }
 
@@ -532,7 +573,7 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
                 // taking swap fees
                 if (swapFee != 0) {
                     uint256 fee = (_tokenIdOrAmount * (swapFee)) / (10000);
-                    (bool successDev, ) = _to.call{value: fee}("");
+                    (bool successDev, ) = devAddress.call{value: fee}("");
                     require(successDev, "Failed to send Ether to dev");
                     amount -= fee;
                 }
@@ -558,15 +599,35 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility {
             }
 
             if (_fromAddress == address(this)) {
-                IERC20(_assetAddress).safeTransfer(msg.sender, amount);
+                IERC20(_assetAddress).safeTransfer(_msgSender(), amount);
             } else {
                 IERC20(_assetAddress).safeTransferFrom(
                     _fromAddress,
-                    msg.sender,
+                    _msgSender(),
                     amount
                 );
             }
         }
+    }
+
+    function versionRecipient() public pure override returns(string memory) { return "2.2.5"; }
+
+    function _msgSender()
+        internal
+        view
+        override(Context, BaseRelayRecipient)
+        returns (address sender)
+    {
+        sender = BaseRelayRecipient._msgSender();
+    }
+
+    function _msgData()
+        internal
+        view
+        override(Context, BaseRelayRecipient)
+        returns (bytes calldata)
+    {
+        return BaseRelayRecipient._msgData();
     }
 
     receive() external payable {}

@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@opengsn/contracts/src/BaseRelayRecipient.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     using Address for address;
@@ -655,7 +656,13 @@ abstract contract ERC1155URIStorage is ERC1155 {
  * @title Prompt ERC-1155
  */
 
-contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard, BaseRelayRecipient {
+contract Prompt is
+    ERC1155,
+    ERC1155URIStorage,
+    ReentrancyGuard,
+    BaseRelayRecipient,
+    Pausable
+{
     using Address for address;
 
     enum Role {
@@ -680,18 +687,18 @@ contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard, BaseRelayRecipie
         uint256 amount
     );
 
-    constructor(address _forwarder) public { 
+    constructor(address _forwarder) public {
         _setTrustedForwarder(_forwarder);
 
         permissions[_msgSender()] = Role.ADMIN;
-	}
+    }
 
     /// @notice authorise to issue a token
     function authorise(
         string memory _tokenURI,
         bytes32 _root,
         uint256 _initialAmount
-    ) external nonReentrant {
+    ) external nonReentrant whenNotPaused {
         require(_initialAmount > 0, "Initial amount must be greater than zero");
         tokenOwnerCount += 1;
         tokenOwners[tokenOwnerCount] = _msgSender();
@@ -716,7 +723,7 @@ contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard, BaseRelayRecipie
         uint256 id,
         uint256 value,
         bytes memory data
-    ) external nonReentrant {
+    ) external nonReentrant whenNotPaused {
         require(tokenOwners[id] == _msgSender(), "Not authorised to mint");
         _mint(to, id, value, data);
     }
@@ -729,13 +736,19 @@ contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard, BaseRelayRecipie
         address[] memory accounts,
         uint256 id,
         uint256 value
-    ) external nonReentrant {
+    ) external nonReentrant whenNotPaused {
         require(tokenOwners[id] == _msgSender(), "Not authorised to mint");
 
         for (uint256 i = 0; i < accounts.length; ++i) {
             // bypass pre/post transfers checks
             _balances[id][accounts[i]] += value;
-            emit TransferSingle(_msgSender(), address(0), accounts[i], id, value);
+            emit TransferSingle(
+                _msgSender(),
+                address(0),
+                accounts[i],
+                id,
+                value
+            );
         }
     }
 
@@ -744,16 +757,16 @@ contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard, BaseRelayRecipie
         string[] memory _tokenURI,
         bytes32[] memory _root,
         uint256 _initialAmount
-    ) external nonReentrant {
+    ) external nonReentrant whenNotPaused {
         require(_initialAmount > 0, "Initial amount must be greater than zero");
-        require( _tokenURI.length == _root.length , "Invalid length");
+        require(_tokenURI.length == _root.length, "Invalid length");
 
         for (uint256 i = 0; i < _tokenURI.length; i++) {
             tokenOwnerCount += 1;
             tokenOwners[tokenOwnerCount] = _msgSender();
 
             // first mint
-            _mint(_msgSender(),tokenOwnerCount, _initialAmount, "");
+            _mint(_msgSender(), tokenOwnerCount, _initialAmount, "");
             _setURI(tokenOwnerCount, _tokenURI[i]);
             roots[tokenOwnerCount] = _root[i];
 
@@ -771,7 +784,7 @@ contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard, BaseRelayRecipie
         uint256[] memory ids,
         uint256[] memory values,
         bytes memory data
-    ) external nonReentrant {
+    ) external nonReentrant whenNotPaused {
         for (uint256 i = 0; i < ids.length; i++) {
             require(
                 tokenOwners[ids[i]] == _msgSender(),
@@ -852,43 +865,61 @@ contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard, BaseRelayRecipie
         return MerkleProof.verify(_proof, roots[_tokenId], leaf);
     }
 
-    /// @notice lock the token to not be transfered 
+    /// @notice lock the token to not be transfered
     /// @param tokenId token ID
-    function lock(uint256 tokenId) external onlyAdmin { 
+    function lock(uint256 tokenId) external onlyAdmin {
         lockable[tokenId] = true;
     }
 
     /// @notice unlock the token
     /// @param tokenId token ID
-    function unlock(uint256 tokenId) external onlyAdmin { 
+    function unlock(uint256 tokenId) external onlyAdmin {
         lockable[tokenId] = false;
     }
 
     // give a specific permission to the given address
     function grant(address _address, Role _role) external onlyAdmin {
-        require(_address != msg.sender, "You cannot grant yourself");
+        require(_address != _msgSender(), "You cannot grant yourself");
         permissions[_address] = _role;
     }
 
     // remove any permission binded to the given address
     function revoke(address _address) external onlyAdmin {
-        require(_address != msg.sender, "You cannot revoke yourself");
+        require(_address != _msgSender(), "You cannot revoke yourself");
         permissions[_address] = Role.UNAUTHORIZED;
     }
 
-    function versionRecipient() public pure override returns(string memory) { return "2.2.5"; }
+    function setPaused(bool _paused) external onlyAdmin {
+        if (_paused) {
+            _pause();
+        } else {
+            _unpause();
+        }
+    }
 
-    function _msgSender() internal view override(Context, BaseRelayRecipient)
-    returns (address sender) {
+    function versionRecipient() public pure override returns (string memory) {
+        return "2.2.5";
+    }
+
+    function _msgSender()
+        internal
+        view
+        override(Context, BaseRelayRecipient)
+        returns (address sender)
+    {
         sender = BaseRelayRecipient._msgSender();
     }
 
-    function _msgData() internal view override(Context, BaseRelayRecipient)
-    returns (bytes calldata) {
+    function _msgData()
+        internal
+        view
+        override(Context, BaseRelayRecipient)
+        returns (bytes calldata)
+    {
         return BaseRelayRecipient._msgData();
     }
 
-     modifier onlyAdmin() {
+    modifier onlyAdmin() {
         require(
             permissions[_msgSender()] == Role.ADMIN,
             "Caller is not the admin"
@@ -903,17 +934,23 @@ contract Prompt is ERC1155, ERC1155URIStorage, ReentrancyGuard, BaseRelayRecipie
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    )
-        internal virtual override
-    {
+    ) internal virtual override {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
 
         for (uint256 i = 0; i < ids.length; i++) {
-            if (to != address(this) && from != address(0) && to != address(0) && permissions[to] != Role.ADMIN && permissions[from] != Role.ADMIN && permissions[operator] != Role.ADMIN) {
-                require(lockable[ids[i]] == false, "Not allow to be transfered");
+            if (
+                to != address(this) &&
+                from != address(0) &&
+                to != address(0) &&
+                permissions[to] != Role.ADMIN &&
+                permissions[from] != Role.ADMIN &&
+                permissions[operator] != Role.ADMIN
+            ) {
+                require(
+                    lockable[ids[i]] == false,
+                    "Not allow to be transfered"
+                );
             }
         }
- 
     }
-
 }

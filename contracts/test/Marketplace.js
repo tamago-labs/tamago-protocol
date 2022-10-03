@@ -28,7 +28,7 @@ describe("Marketplace contract", () => {
         const MockERC1155 = await ethers.getContractFactory("MockERC1155")
         const MockERC20 = await ethers.getContractFactory("MockERC20")
 
-        marketplace = await Marketplace.deploy(1)
+        marketplace = await Marketplace.deploy(1, ethers.constants.AddressZero )
 
         erc1155 = await MockERC1155.deploy(
             "https://api.cryptokitties.co/kitties/{id}"
@@ -127,7 +127,10 @@ describe("Marketplace contract", () => {
 
         // validate the result
         expect(await erc1155.balanceOf(bob.address, 1)).to.equal(1)
-        expect(await mockUsdc.balanceOf(alice.address)).to.equal(toUsdc(180))
+
+        await marketplace.withdrawErc20(mockUsdc.address, alice.address, toUsdc(160))
+
+        expect(await mockUsdc.balanceOf(alice.address)).to.equal(toUsdc(160))
 
     })
 
