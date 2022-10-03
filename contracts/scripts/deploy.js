@@ -13,8 +13,8 @@ async function main() {
     const Prompt = await hre.ethers.getContractFactory("Prompt")
     const Marketplace = await hre.ethers.getContractFactory("Marketplace")
 
-    const prompt = await Prompt.deploy()
-    const marketplace = await Marketplace.deploy(137)
+    const prompt = await Prompt.deploy("0xdA78a11FD57aF7be2eDD804840eA7f4c2A38801d")
+    const marketplace = await Marketplace.deploy(137, "0xdA78a11FD57aF7be2eDD804840eA7f4c2A38801d")
 
     console.log("Prompt deployed to:", prompt.address);
     console.log("Marketplace deployed to:", marketplace.address);
@@ -23,12 +23,12 @@ async function main() {
 
     await hre.run("verify:verify", {
         address: prompt.address,
-        constructorArguments: [],
+        constructorArguments: ["0xdA78a11FD57aF7be2eDD804840eA7f4c2A38801d"],
     });
 
     await hre.run("verify:verify", {
         address: marketplace.address,
-        constructorArguments: [137],
+        constructorArguments: [137, "0xdA78a11FD57aF7be2eDD804840eA7f4c2A38801d"],
     });
 
 }
