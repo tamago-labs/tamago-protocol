@@ -2,6 +2,8 @@
 
 Tamago Protocol is a multi-chain P2P universal asset trading protocol powered by Filecoin/IPFS networks. It helps anyone create off-chain entries contain assets to be prices and terms and link them to the EVM-based blockchain via the Merkle tree root's hash support of ERC-20, ERC-721 and ERC-1155, after the order is set, potential buyers can check the details retrieved from IPFS and further generate a proof to swap the asset in a decentralized manner. 
 
+A spinned off project for AI-artworks : https://github.com/tamago-labs/promptsea-project
+
 ### Tech Stack
 
 - Ethereum Soldiity, Hardhat - Smart Contract
