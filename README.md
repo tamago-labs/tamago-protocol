@@ -1,5 +1,6 @@
 # PromptSea
 
+Main Project Repo & Tech Details https://github.com/tamago-labs/tamago-protocol
 
 ## Deployment
 
