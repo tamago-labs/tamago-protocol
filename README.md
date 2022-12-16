@@ -2,6 +2,8 @@
 
 Tamago Protocol is a multi-chain P2P universal asset trading protocol powered by Filecoin/IPFS networks. It helps anyone create off-chain entries contain assets to be prices and terms and link them to the EVM-based blockchain via the Merkle tree root's hash support of ERC-20, ERC-721 and ERC-1155, after the order is set, potential buyers can check the details retrieved from IPFS and further generate a proof to swap the asset in a decentralized manner. 
 
+A spinned off project for AI-artworks : https://github.com/tamago-labs/promptsea-project
+
 ### Tech Stack
 
 - Ethereum Soldiity, Hardhat - Smart Contract
@@ -59,6 +61,8 @@ The non-cross-chain transaction requires a contract `marketplace.sol` to keeps t
 Contract Name | Contract Address 
 --- | --- 
 Marketplace | 0xf2260B00250c772CB64606dBb88d9544F709308C
+Factory | 0x5eCD2Af4bc20DEebF12f332Eb4812289e3CB9c99
+Ticket | 0x505D3E62045829a133D0384f75c8fb4c856A94DB
 
 ### Ethereum (Chain id : 1)
 
@@ -71,18 +75,24 @@ Marketplace | 0x260fC7251fAe677B6254773d347121862336fb9f
 Contract Name | Contract Address 
 --- | --- 
 Marketplace | 0xC8def0BE43D35a247e03EEd09C9afBd5FC866769
+Factory | 0x5eCD2Af4bc20DEebF12f332Eb4812289e3CB9c99
+Ticket | 0x505D3E62045829a133D0384f75c8fb4c856A94DB
 
 ### Avalanche (Chain id : 43114) 
 
 Contract Name | Contract Address 
 --- | --- 
 Marketplace | 0x7D17d5903eDEdB8597c9343c94FeD74E93589e47
+Factory | 0xb1780D5F7154ce904FA3D164D9Ed63005245c2b9
+Ticket | 0xf6A61A2CfCE9F55F4eC19EeBd2750E1C627E6D13
 
 ### Polygon (Chain id : 137) 
 
 Contract Name | Contract Address 
 --- | --- 
 Marketplace | 0xd0B14b314B6B983889b68E6EA307BF210156A050
+Factory | 0x5d5b6e0af587633b41eaa89de0a60b3052a13f21
+Ticket | 0x774DCAB6C0a3e820FAd0a96125Da231685943741
 
 ### Mumbai Testnet (Chain Id : 80001)
 
@@ -90,7 +100,7 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0x334aB2599bC5ABEbAcA54C3E8aF68ee94Ad586fD
 Gateway | 0xD84cE28B4D502237c518328230c39E8A371121a5
-Ticket | 0xbF06fEC9271B2440E8f3Be87392e2415025Cd4A9
+Ticket | 0xFdB35092c0cf5e1A5175308CB312613972C3DF3D
 Factory | 0x5F7392Ec616F829Ab54092e7F167F518835Ac740
 
 ### Avalanche Fuji Testnet (Chain Id : 43113)
@@ -99,7 +109,7 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0x7D17d5903eDEdB8597c9343c94FeD74E93589e47
 Gateway | 0xbF06fEC9271B2440E8f3Be87392e2415025Cd4A9
-Ticket | 0xF0b8eaEeBe416Ec43f79b0c83CCc5670d2b7C3Db
+Ticket | 0x5578D955DC00d2155Ad3420bd1D3b064F6a6F084
 Factory | 0xe03dFA1B78e5A25a06b67C73f32f3C8739ADba7c
 
 ### BNB Smart Chain Testnet (Chain Id : 97)
@@ -108,7 +118,7 @@ Contract Name | Contract Address
 --- | --- 
 Marketplace | 0xbF06fEC9271B2440E8f3Be87392e2415025Cd4A9
 Gateway | 0x5F7392Ec616F829Ab54092e7F167F518835Ac740
-Ticket | 0x3466441C38D2F76405085b730268240E4F2d0D25
+Ticket | 0x2e3D4D9be3a74bfB2D1B61c52018556f7B67d36A
 Factory | 0x772195938d86fcf500dF18563876d7Cefcf47e4D
 
 ## License
