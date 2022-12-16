@@ -1,7 +1,7 @@
 require("dotenv").config()
 
 require("@nomicfoundation/hardhat-toolbox");
-require("@nomiclabs/hardhat-etherscan")
+require("@nomiclabs/hardhat-etherscan");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -93,7 +93,7 @@ module.exports = {
     },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: process.env.POLYGON_API_KEY,
     customChains: [
       {
         network: "cronos",
