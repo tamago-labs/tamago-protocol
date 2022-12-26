@@ -9,7 +9,8 @@ const { parseBody, verifySignature } = require("../utils")
 const REDEEM_CODES = [
     "2-years-pro",
     "2-years-rising",
-    "3-months-rising"
+    "3-months-rising",
+    "4-months-rising"
 ]
 
 const checkActivationCode = async (event, {

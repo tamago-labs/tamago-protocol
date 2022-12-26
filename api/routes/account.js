@@ -117,15 +117,7 @@ const createAccount = async (event, tableName) => {
             const params = {
                 TableName: tableName,
                 Item: {
-                    address,
-                    alias,
-                    image,
-                    description,
-                    slug,
-                    location,
-                    collections,
-                    message,
-                    signature,
+                    ...body,
                     "chainType": "evm",
                     "address": address
                 }

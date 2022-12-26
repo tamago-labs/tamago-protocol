@@ -4,16 +4,15 @@ const aws = require("@pulumi/aws");
 const awsx = require("@pulumi/awsx");
 
 const { resolveChainName, generateMoralisParams } = require("./utils")
-const { getCollection, createCollection, getMetadata, getAccount, createAccount, getAllAccounts, getAllCollections, getAllPrompts, createPrompt, getPrompt, postMessage, readMessages, removeMessage } = require("./routes")
+const { getCollection, createCollection, getMetadata, getAccount, createAccount, getAllAccounts, getAllCollections, getAllPrompts, createPrompt, getPrompt, postMessage, readMessages, removeMessage, updatePrompt } = require("./routes")
 const { fetchCollectionInfo, fetchCollectionInfo2, fetchCollectionInfo3 } = require("./services/collection")
 const { fetchMetadata } = require("./services/metadata")
 // const { fetchDashboardData, fetchItemData } = require("./services/dashboard");
 // const { getDashboard, getAllItems } = require("./routes/dashboard");
 const { uploadImage, uploadJson } = require("./routes/image")
 const { checkActivationCode, claimActivationCode, cancelActivationCode } = require("./routes/redeem")
-const { getBounty, getAllBounties, createBounty, updateBounty } = require("./routes/bounty")
-
-
+const { getBounty, getAllBounties, createBounty, updateBounty, submitBounty, commentBounty } = require("./routes/bounty")
+const { postVote, getVote } = require("./routes/vote")
 
 const imageBucket = new aws.s3.Bucket("img.tamagonft.xyz", {
     acl: "public-read",
@@ -174,6 +173,25 @@ const promptTable = new aws.dynamodb.Table(
     }
 )
 
+const voteTable = new aws.dynamodb.Table(
+    "tamagoVoteTable",
+    {
+        attributes: [
+            {
+                name: "chainType",
+                type: "S"
+            },
+            {
+                name: "tokenId",
+                type: "N"
+            }
+        ],
+        hashKey: "chainType",
+        rangeKey: "tokenId",
+        billingMode: "PAY_PER_REQUEST"
+    }
+)
+
 const bountyTable = new aws.dynamodb.Table(
     "tamagobountyTable",
     {
@@ -278,10 +296,32 @@ const TamagoApi = new awsx.apigateway.API("tamago-api", {
             })
         },
         {
+            method: "POST",
+            path: "/bounty/submit",
+            eventHandler: new aws.lambda.CallbackFunction("submitBounty", {
+                callback: async (event) => await submitBounty(event, bountyTable.name.get()),
+            })
+        },
+        // {
+        //     method: "POST",
+        //     path: "/bounty/comment",
+        //     eventHandler: new aws.lambda.CallbackFunction("commentBounty", {
+        //         callback: async (event) => await commentBounty(event, bountyTable.name.get()),
+        //     })
+        // },
+        {
             method: "GET",
             path: "/prompt/{proxy+}",
             eventHandler: new aws.lambda.CallbackFunction("getPrompt", {
                 callback: async (event) => await getPrompt(event, promptTable.name.get())
+            })
+        },
+        {
+            method: "POST",
+            path: "/prompt/{proxy+}",
+            eventHandler: new aws.lambda.CallbackFunction("updatePrompt", {
+                memorySize: 256,
+                callback: async (event) => await updatePrompt(event, promptTable.name.get())
             })
         },
         {
@@ -335,7 +375,7 @@ const TamagoApi = new awsx.apigateway.API("tamago-api", {
             eventHandler: new aws.lambda.CallbackFunction("claimActivationCode", {
                 callback: async (event) => await claimActivationCode(event, {
                     redeemTableName: redeemCodeTable.name.get(),
-                    accountTableName : accountTable.name.get()
+                    accountTableName: accountTable.name.get()
                 })
             })
         },
@@ -344,7 +384,7 @@ const TamagoApi = new awsx.apigateway.API("tamago-api", {
             path: "/activationCode/cancel",
             eventHandler: new aws.lambda.CallbackFunction("cancelActivationCode", {
                 callback: async (event) => await cancelActivationCode(event, {
-                    accountTableName : accountTable.name.get()
+                    accountTableName: accountTable.name.get()
                 })
             })
         },
@@ -405,6 +445,20 @@ const TamagoApi = new awsx.apigateway.API("tamago-api", {
             eventHandler: new aws.lambda.CallbackFunction("uploadJson", {
                 memorySize: 256,
                 callback: async (event) => await uploadJson(event, { bucket: imageBucket }),
+            })
+        },
+        {
+            method: "POST",
+            path: "/vote/{proxy+}",
+            eventHandler: new aws.lambda.CallbackFunction("postVote", {
+                callback: async (event) => await postVote(event, voteTable.name.get())
+            })
+        },
+        {
+            method: "GET",
+            path: "/vote/{proxy+}",
+            eventHandler: new aws.lambda.CallbackFunction("getVote", {
+                callback: async (event) => await getVote(event, voteTable.name.get())
             })
         }
     ]

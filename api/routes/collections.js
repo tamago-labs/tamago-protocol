@@ -109,7 +109,7 @@ const getCollection = async (event, tableName, queueName) => {
 
 const createCollection = async (event, tableName) => {
 
-    console.log("creating / updating a collection record")
+    console.log("creating a collection record")
 
     try {
 
@@ -178,7 +178,7 @@ const createCollection = async (event, tableName) => {
             }
 
         } else {
-            throw new Error("Invalid singed message")
+            throw new Error("Invalid signed message")
         }
 
     } catch (error) {
@@ -193,7 +193,6 @@ const createCollection = async (event, tableName) => {
     }
 
 }
-
 
 const getAllCollections = async (event, tableName) => {
 

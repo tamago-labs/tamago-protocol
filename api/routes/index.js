@@ -3,7 +3,7 @@ const { getCollection, createCollection, getAllCollections } = require("./collec
 const { getMetadata } = require("./metadata")
 const { getAccount, createAccount, getAllAccounts } = require("./account")
 const { postMessage, readMessages, removeMessage } = require("./messenger")
-const { createPrompt, getAllPrompts, getPrompt } = require("./prompt")
+const { createPrompt, getAllPrompts, getPrompt, updatePrompt } = require("./prompt")
 const { uploadImage } = require("./image")
 
 module.exports = {
@@ -18,6 +18,7 @@ module.exports = {
     createPrompt,
     getAllPrompts,
     getPrompt,
+    updatePrompt,
     uploadImage,
     postMessage,
     readMessages,
