@@ -11,13 +11,13 @@ let alice
 let bob
 let charlie
 
-describe("Prompt", () => {
+describe("Artwork", () => {
 
     beforeEach(async () => {
 
         [admin, alice, bob, charlie] = await ethers.getSigners();
 
-        const Prompt = await ethers.getContractFactory("Prompt");
+        const Prompt = await ethers.getContractFactory("Artwork");
 
         prompt = await Prompt.deploy(ethers.constants.AddressZero)
 

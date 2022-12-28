@@ -10,7 +10,7 @@ async function main() {
         })
     }
 
-    const Prompt = await hre.ethers.getContractFactory("Prompt")
+    const Prompt = await hre.ethers.getContractFactory("Artwork")
     const Marketplace = await hre.ethers.getContractFactory("Marketplace")
 
     const prompt = await Prompt.deploy("0xdA78a11FD57aF7be2eDD804840eA7f4c2A38801d")

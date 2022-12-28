@@ -13,10 +13,10 @@ import "./utils/SBT1155.sol";
 import "./utils/SBT1155URIStorage.sol";
 
 /**
- * @title Prompt ERC-1155
+ * @title Artwork NFT ERC-1155
  */
 
-contract Prompt is
+contract Artwork is
     SBT1155,
     SBT1155URIStorage,
     ReentrancyGuard,
