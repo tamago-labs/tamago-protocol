@@ -80,7 +80,7 @@ contract Marketplace is ReentrancyGuard, ERC1155Holder, Eligibility, BaseRelayRe
         _setTrustedForwarder(_forwarder);
 
         // set fees for ERC-20 / Ether
-        swapFee = 2000; // 20%
+        swapFee = 1000; // 10%
     }
 
     /// @notice create an order
