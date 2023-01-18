@@ -36,7 +36,7 @@ module.exports = {
     },
     polygon: {
       allowUnlimitedContractSize: true,
-      url: "https://nd-643-057-168.p2pify.com/2ffe10d04df48d14f0e9ff6e0409f649",
+      url: "https://nd-423-609-188.p2pify.com/0168cc71e34de272e6159fa552d194c0",
       accounts: [process.env.PRIVATEKEY_DEPLOYER, process.env.PRIVATEKEY_DEV],
     },
     mumbai: {
@@ -67,7 +67,7 @@ module.exports = {
     },
     avaxTestnet: {
       allowUnlimitedContractSize: true,
-      url: "https://api.avax-test.network/ext/bc/C/rpc",
+      url: "https://nd-473-270-876.p2pify.com/613a7805f3d64a52349b6ca19b6e27a7/ext/bc/C/rpc",
       accounts: [process.env.PRIVATEKEY_DEPLOYER, process.env.PRIVATEKEY_DEV],
       timeout: 500000,
     },
@@ -93,7 +93,7 @@ module.exports = {
     },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: process.env.POLYGON_API_KEY,
     customChains: [
       {
         network: "cronos",
