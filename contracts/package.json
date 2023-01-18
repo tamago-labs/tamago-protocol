@@ -1,5 +1,5 @@
 {
-  "name": "hardhat-project",
+  "name": "promptsea-contract",
   "dependencies": {
     "@opengsn/contracts": "2.2.5",
     "@openzeppelin/contracts": "^4.6.0",
